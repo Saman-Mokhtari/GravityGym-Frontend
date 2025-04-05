@@ -4,83 +4,78 @@ import Button from '@/components/Button'
 import Input from '@/components/Input'
 import InputError from '@/components/InputError'
 import Label from '@/components/Label'
-import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus'
+import Loading from '@/app/(auth)/Loading' // Import the Loading component
 
 const Login = () => {
     const router = useRouter()
 
-    const { login } = useAuth({
+    const { login, loading } = useAuth({
         middleware: 'guest',
         redirectIfAuthenticated: '/dashboard',
     })
 
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [phone, setPhone] = useState('')
     const [shouldRemember, setShouldRemember] = useState(false)
-    const [errors, setErrors] = useState([])
+    const [errors, setErrors] = useState({})
     const [status, setStatus] = useState(null)
 
     useEffect(() => {
-        if (router.reset?.length > 0 && errors.length === 0) {
+        if (router?.reset?.length > 0 && Object.keys(errors).length === 0) {
             setStatus(atob(router.reset))
         } else {
             setStatus(null)
         }
-    })
+    }, [router, errors]) // Ensure this effect runs properly
 
     const submitForm = async event => {
         event.preventDefault()
 
-        login({
-            email,
-            password,
-            remember: shouldRemember,
-            setErrors,
-            setStatus,
-        })
+        try {
+            await login({
+                phone_number: phone,
+                remember: shouldRemember,
+                setErrors,
+                setStatus,
+            })
+        } catch (error) {
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                phone:
+                    error.response?.status === 401
+                        ? ['Invalid credentials']
+                        : ['An unexpected error occurred'],
+            }))
+        }
+    }
+
+    // **Show the loading indicator while authentication is being checked**
+    if (loading) {
+        return <Loading />
     }
 
     return (
         <>
             <AuthSessionStatus className="mb-4" status={status} />
             <form onSubmit={submitForm}>
-                {/* Email Address */}
+                {/* Phone Number */}
                 <div>
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="phone">Phone</Label>
 
                     <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        className="block mt-1 w-full"
-                        onChange={event => setEmail(event.target.value)}
-                        required
+                        id="phone"
+                        type="tel"
+                        value={phone}
+                        className="flex mt-1 w-full p-2"
+                        onChange={event => setPhone(event.target.value)}
                         autoFocus
                     />
 
-                    <InputError messages={errors.email} className="mt-2" />
-                </div>
-
-                {/* Password */}
-                <div className="mt-4">
-                    <Label htmlFor="password">Password</Label>
-
-                    <Input
-                        id="password"
-                        type="password"
-                        value={password}
-                        className="block mt-1 w-full"
-                        onChange={event => setPassword(event.target.value)}
-                        required
-                        autoComplete="current-password"
-                    />
-
                     <InputError
-                        messages={errors.password}
+                        messages={errors?.phone_number}
                         className="mt-2"
                     />
                 </div>
@@ -107,12 +102,6 @@ const Login = () => {
                 </div>
 
                 <div className="flex items-center justify-end mt-4">
-                    <Link
-                        href="/forgot-password"
-                        className="underline text-sm text-gray-600 hover:text-gray-900">
-                        Forgot your password?
-                    </Link>
-
                     <Button className="ml-3">Login</Button>
                 </div>
             </form>
