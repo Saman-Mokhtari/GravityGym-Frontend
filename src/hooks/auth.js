@@ -7,7 +7,9 @@ import Cookies from 'js-cookie'
 
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
+
     const [loading, setLoading] = useState(true)
+
     const {
         data: user,
         error,
@@ -31,8 +33,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         axios
             .post('/login', props)
-            .then(res => {
-                console.log('Login response:', res.data)
+            .then((res) => {
                 window.location.pathname = '/otp_verification'
                 return mutate()
             })
@@ -51,7 +52,6 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         axios
             .post('/otp', props)
             .then(res => {
-                console.log('OTP response:', res.data)
                 Cookies.set('Authorization', `Bearer ${res.data.token}`, {
                     expires: 7,
                 })
