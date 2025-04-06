@@ -25,7 +25,13 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
-    const login = async ({ setErrors, setStatus, ...props }) => {
+    const login = async ({
+        setErrors,
+        setStatus,
+        validationSuccess,
+        ...props
+    }) => {
+        setLoading(true)
         await csrf()
 
         setErrors([])
@@ -33,8 +39,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         axios
             .post('/login', props)
-            .then((res) => {
-                window.location.pathname = '/otp_verification'
+            .then(res => {
+                validationSuccess()
+                setLoading(false)
                 return mutate()
             })
             .catch(error => {
@@ -44,6 +51,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     const otp = async ({ setErrors, setStatus, ...props }) => {
+        setLoading(true)
         await csrf()
 
         setErrors([])

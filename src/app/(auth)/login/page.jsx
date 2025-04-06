@@ -24,6 +24,7 @@ const Login = () => {
     const [status, setStatus] = useState(null)
 
     useEffect(() => {
+        console.log(errors)
         if (router?.reset?.length > 0 && Object.keys(errors).length === 0) {
             setStatus(atob(router.reset))
         } else {
@@ -33,7 +34,6 @@ const Login = () => {
 
     const submitForm = async event => {
         event.preventDefault()
-
         try {
             await login({
                 phone_number: phone,

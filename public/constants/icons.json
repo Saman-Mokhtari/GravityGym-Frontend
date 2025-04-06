@@ -1,8 +1,10 @@
 {
     "home": "fa-thin fa-house",
+    "hamburger": "fa-light fa-bars",
     "shoppingBags": "fa-thin fa-bags-shopping",
     "shoppingBagsLight": "fa-light fa-bags-shopping",
     "shoppingBag": "fa-thin fa-bag-shopping",
+    "loadingSpinner": "fa-solid fa-spinner-scale",
     "userSharp": "fa-sharp fa-thin fa-user",
     "progress": "fa-light fa-arrow-progress",
     "bell": "fa-thin fa-bell",

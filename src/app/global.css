@@ -18,3 +18,8 @@
     --color-warning: 255, 193, 7;
     --color-error: 239, 68, 68;
 }
+
+.heroBachgroundGradient {
+    background: rgb(0,0,0);
+    background: linear-gradient(180deg, rgba(0,0,0,0.9) 45%,  rgba(0,0,0,0.7) 65%, rgba(0,0,0,0) 100%);
+}
