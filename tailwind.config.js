@@ -18,7 +18,7 @@ module.exports = {
                 },
             },
             fontFamily: {
-                font: ['iransans','Rubik'],
+                font: ['iransans', 'Rubik'],
                 lalezar: ['lalezar'],
             },
             colors: {
@@ -27,6 +27,18 @@ module.exports = {
                         return `rgba(var(--color-bg-primary), ${opacityValue})`
                     }
                     return 'rgb(var(--color-bg-primary))'
+                },
+                bgSubs: ({ opacityValue }) => {
+                    if (opacityValue !== undefined) {
+                        return `rgba(var(--color-bg-subs), ${opacityValue})`
+                    }
+                    return 'rgb(var(--color-bg-subs))'
+                },
+                bgTertiary: ({ opacityValue }) => {
+                    if (opacityValue !== undefined) {
+                        return `rgba(var(--color-bg-tertiary), ${opacityValue})`
+                    }
+                    return 'rgb(var(--color-bg-tertiary))'
                 },
                 bgSecondary: ({ opacityValue }) => {
                     if (opacityValue !== undefined) {

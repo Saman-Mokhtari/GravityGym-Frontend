@@ -12,9 +12,7 @@ const AppLayout = ({ children }) => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            <Navigation user={user} />
-
+        <div dir="rtl" className="w-full flex flex-col font-font">
             <main>{children}</main>
         </div>
     )

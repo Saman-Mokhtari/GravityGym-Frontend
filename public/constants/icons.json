@@ -1,6 +1,7 @@
 {
     "home": "fa-thin fa-house",
     "hamburger": "fa-light fa-bars",
+    "caretDown": "fa-solid fa-caret-down",
     "shoppingBags": "fa-thin fa-bags-shopping",
     "shoppingBagsLight": "fa-light fa-bags-shopping",
     "shoppingBag": "fa-thin fa-bag-shopping",
@@ -22,6 +23,7 @@
     "instagram": "fa-brands fa-instagram",
     "telegram": "fa-brands fa-telegram",
     "arrowRight": "fa-light fa-arrow-right",
+    "important": "fa-solid fa-star-of-life",
     "heartOutline": "fa-light fa-heart",
     "heart": "fa-solid fa-heart",
     "shirt": "fa-light fa-shirt",
@@ -67,6 +69,7 @@
     "downUp": "fa-solid fa-arrows-up-down",
     "leftRight": "fa-solid fa-arrows-left-right",
     "phone": "fa-solid fa-mobile",
+    "telephone": "fa-solid fa-phone-rotary",
     "detail": "fa-regular fa-circle-info",
     "vest": "fa-light fa-vest-patches"
 }

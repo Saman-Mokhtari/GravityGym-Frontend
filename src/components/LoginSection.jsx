@@ -5,27 +5,19 @@ import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ErrorLabel from '@/components/ErrorLabel'
-import { setLazyProp } from 'next/dist/server/api-utils'
 
-export default function Login({ validationSuccess }) {
+export default function LoginSection({
+    validationSuccess,
+    setPhoneNumber,
+    error,
+}) {
     const router = useRouter()
-    const { login, loading } = useAuth({
-        middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
-    })
+    const { login, loading } = useAuth()
 
-    const [phone, setPhone] = useState('')
+    const [phone, setPhone] = useState(null)
     const [shouldRemember, setShouldRemember] = useState(false)
     const [errors, setErrors] = useState({})
     const [status, setStatus] = useState(null)
-
-    useEffect(() => {
-        if (router?.reset?.length > 0 && Object.keys(errors).length === 0) {
-            setStatus(atob(router.reset))
-        } else {
-            setStatus(null)
-        }
-    }, [router, errors]) // Ensure this effect runs properly
 
     const submitForm = async event => {
         event.preventDefault()
@@ -57,6 +49,7 @@ export default function Login({ validationSuccess }) {
                     onSubmit={submitForm}
                     className="w-full flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
+                        {error && <ErrorLabel text="لطفا مجدد تلاش کنید" />}
                         <FormLabel
                             text={
                                 'شماره تلفن خود را جهت ورود یا ثبت نام وارد کنید'
@@ -68,6 +61,7 @@ export default function Login({ validationSuccess }) {
                                 type="tel"
                                 onChange={e => {
                                     setPhone(e.target.value)
+                                    setPhoneNumber(e.target.value)
                                 }}
                                 className={`w-full border py-4 text-[18px] pl-14  border-border rounded-md text-textPrimary focus:ring-0 focus:border focus:border-textSecondary ${errors?.phone_number && 'border-error placeholder:text-error/50'}`}
                                 placeholder="09129999999"
@@ -88,7 +82,7 @@ export default function Login({ validationSuccess }) {
                             type="checkbox"
                             checked={shouldRemember}
                             onChange={() => setShouldRemember(!shouldRemember)}
-                            className="accent-textPrimary w-4 h-4"
+                            className="accent-textPrimary w-4 h-4 cursor-pointer"
                         />
                         <FormLabel text="مرا بخاطر بسپار" />
                     </div>

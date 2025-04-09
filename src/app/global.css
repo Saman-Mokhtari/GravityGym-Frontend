@@ -6,9 +6,15 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+    scroll-behavior: smooth;
+}
+
 :root {
     --color-bg-primary: 255, 255, 255;
+    --color-bg-tertiary: 18, 18, 18;
     --color-bg-secondary: 151, 251, 87;
+    --color-bg-subs: 95, 114, 82;
     --color-text-primary: 38, 36, 36;
     --color-text-secondary: 96, 96, 96;
     --color-border: 217, 217, 217;
@@ -20,6 +26,6 @@
 }
 
 .heroBachgroundGradient {
-    background: rgb(0,0,0);
-    background: linear-gradient(180deg, rgba(0,0,0,0.9) 45%,  rgba(0,0,0,0.7) 65%, rgba(0,0,0,0) 100%);
+    background: rgb(0, 0, 0);
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.9) 45%, rgba(0, 0, 0, 0.7) 65%, rgba(0, 0, 0, 0) 100%);
 }

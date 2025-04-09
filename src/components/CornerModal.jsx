@@ -1,5 +1,5 @@
 'use client'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import useClickOutside from '@/hooks/useClickOutside'
@@ -29,7 +29,7 @@ export default function CornerModal({
                 duration: 0.25,
                 opacity: 1,
                 ease: 'power2.out',
-                onComplet: () => {
+                onComplete: () => {
                     setDisplayModal('flex flex-col')
                 },
             })
@@ -48,7 +48,7 @@ export default function CornerModal({
     return (
         <div
             ref={modal}
-            className={`${displayModal}  absolute ${overFlow ? 'overflow-scroll' : 'overflow-hidden'} overflow-x-hidden z-[100] top-20 ${cart ? 'right-32' : 'right-6'} w-[25vw] h-fit max-h-[70vh] py-4 px-6 rounded-xl shadow-custom bg-bgPrimary`}>
+            className={`${displayModal}  absolute ${overFlow ? 'overflow-scroll' : 'overflow-hidden'} overflow-x-hidden z-[100] top-28 w-[25vw] h-fit max-h-[70vh] py-4 px-6 rounded-xl shadow-custom bg-bgPrimary`}>
             <div className="w-full">
                 <Icons
                     name={'close'}
