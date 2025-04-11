@@ -10,6 +10,7 @@ import Icons from '@/components/Icons'
 import ResendCode from '@/components/ResendCode'
 import ErrorLabel from '@/components/ErrorLabel'
 import { error } from 'next/dist/build/output/log'
+import PrimaryButton from '@/components/PrimaryButton'
 
 export default function OtpSection({ codeExpired, phoneNumber }) {
     const router = useRouter()
@@ -148,22 +149,7 @@ export default function OtpSection({ codeExpired, phoneNumber }) {
                 {errors.status === 422 && <ErrorLabel text={errors?.error} />}
                 <ResendCode phoneNumber={phoneNumber} />
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                    className="w-full mt-4 flex justify-center items-center text-textPrimary border border-textPrimary rounded-md h-16 bg-bgSecondary">
-                    {!loading ? (
-                        <p>ورود / ثبت‌نام</p>
-                    ) : (
-                        <div className="flex flex-row-reverse items-center gap-2">
-                            <Icons
-                                name="loadingSpinner"
-                                className="animate-spin text-[30px]"
-                            />
-                            <p>لطفا منتظر بمانید</p>
-                        </div>
-                    )}
-                </button>
+                <PrimaryButton loading={loading}>بررسی کد</PrimaryButton>
             </form>
         </div>
     )

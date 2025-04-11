@@ -10,11 +10,19 @@ html {
     scroll-behavior: smooth;
 }
 
+.dashboardPanelShadow {
+    -webkit-box-shadow: 1px 1px 9px -3px rgba(0, 0, 0, 0.58);
+    -moz-box-shadow: 1px 1px 9px -3px rgba(0, 0, 0, 0.58);
+    box-shadow: 1px 1px 9px -3px rgba(0, 0, 0, 0.58);
+}
+
 :root {
     --color-bg-primary: 255, 255, 255;
     --color-bg-tertiary: 18, 18, 18;
     --color-bg-secondary: 151, 251, 87;
     --color-bg-subs: 95, 114, 82;
+    --color-bg-dashboard: 250, 250, 250;
+    --color-bg-dashboard-hover: 245, 245, 245;
     --color-text-primary: 38, 36, 36;
     --color-text-secondary: 96, 96, 96;
     --color-border: 217, 217, 217;

@@ -1,14 +1,13 @@
 'use client'
-import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import CornerModal from '@/components/CornerModal'
 import LoginSection from '@/components/LoginSection'
 import OtpSection from '@/components/OtpSection'
 import useWindowSize from '@/hooks/useWindowSize'
 import { Drawer } from 'vaul'
-import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import LoginButton from '@/components/LoginButton'
+import { useSearchParams } from 'next/navigation'
 
 export default function LoginRegister({ onClick }) {
     const [openModal, setOpenModal] = useState(false)

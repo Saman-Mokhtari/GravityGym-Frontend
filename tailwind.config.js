@@ -34,6 +34,18 @@ module.exports = {
                     }
                     return 'rgb(var(--color-bg-subs))'
                 },
+                bgDashboard: ({ opacityValue }) => {
+                    if (opacityValue !== undefined) {
+                        return `rgba(var(--color-bg-dashboard), ${opacityValue})`
+                    }
+                    return 'rgb(var(--color-bg-dashboard))'
+                },
+                bgDashboardHover: ({ opacityValue }) => {
+                    if (opacityValue !== undefined) {
+                        return `rgba(var(--color-bg-dashboard-hover), ${opacityValue})`
+                    }
+                    return 'rgb(var(--color-bg-dashboard-hover))'
+                },
                 bgTertiary: ({ opacityValue }) => {
                     if (opacityValue !== undefined) {
                         return `rgba(var(--color-bg-tertiary), ${opacityValue})`

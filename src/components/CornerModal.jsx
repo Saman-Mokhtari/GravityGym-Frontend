@@ -4,17 +4,17 @@ import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import useClickOutside from '@/hooks/useClickOutside'
 import Icons from '@/components/Icons'
+import { useSearchParams } from 'next/navigation'
+import useWindowSize from '@/hooks/useWindowSize'
 
 export default function CornerModal({
     children,
     openModal,
     setOpenModal,
     overFlow = true,
-    cart,
 }) {
     const [displayModal, setDisplayModal] = useState('hidden')
     const modal = useRef(null)
-
     const closeModal = () => {
         setOpenModal(false)
     }

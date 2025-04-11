@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/auth'
 import Icons from '@/components/Icons'
 
 export default function ResendCode({ phoneNumber }) {
-    const [newCodeCountDown, setNewCodeCountDown] = useState(5)
+    const [newCodeCountDown, setNewCodeCountDown] = useState(30)
     const { resendCode, loading } = useAuth({ middleware: 'guest' })
     const [codeSent, setCodeSent] = useState(false)
 
@@ -48,7 +48,7 @@ export default function ResendCode({ phoneNumber }) {
                 ) : !loading ? (
                     <div
                         onClick={resendCodeHandler}
-                        className={`font-medium text-[16px] hover:text-textSecondary transition-all duration-50 ${newCodeCountDown === 0 ? 'text-textPrimary' : 'text-textSecondary'}`}>
+                        className={`font-medium text-[16px]  transition-all duration-50 ${newCodeCountDown === 0 ? 'text-textPrimary hover:text-textSecondary cursor-pointer' : 'text-textSecondary/50 cursor-not-allowed'}`}>
                         ارسال مجدد کد
                     </div>
                 ) : (

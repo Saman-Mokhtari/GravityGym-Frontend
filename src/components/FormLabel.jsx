@@ -1,7 +1,15 @@
-export default function FormLabel({ text, children }) {
+export default function FormLabel({
+    text,
+    children,
+    error = false,
+    className = null,
+}) {
     return (
         <div className="flex flex-col relative w-fit">
-            <p className="text-textSecondary font-light font-font">{text}</p>
+            <p
+                className={`${className} font-light font-font ${!error ? 'text-textSecondary ' : 'text-error'}`}>
+                {text}
+            </p>
             {children}
         </div>
     )

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ErrorLabel from '@/components/ErrorLabel'
+import PrimaryButton from '@/components/PrimaryButton'
 
 export default function LoginSection({
     validationSuccess,
@@ -15,7 +16,7 @@ export default function LoginSection({
     const { login, loading } = useAuth()
 
     const [phone, setPhone] = useState(null)
-    const [shouldRemember, setShouldRemember] = useState(false)
+    const [shouldRemember, setShouldRemember] = useState(true)
     const [errors, setErrors] = useState({})
     const [status, setStatus] = useState(null)
 
@@ -76,31 +77,10 @@ export default function LoginSection({
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <input
-                            id="remember"
-                            type="checkbox"
-                            checked={shouldRemember}
-                            onChange={() => setShouldRemember(!shouldRemember)}
-                            className="accent-textPrimary w-4 h-4 cursor-pointer"
-                        />
-                        <FormLabel text="مرا بخاطر بسپار" />
-                    </div>
-                    <button
-                        disabled={loading}
-                        className="w-full mt-4 flex justify-center items-center text-textPrimary border border-textPrimary rounded-md  h-16 bg-bgSecondary">
-                        {!loading ? (
-                            <p className="">ورود / ثبت‌نام</p>
-                        ) : (
-                            <div className="flex items-center gap-2">
-                                <Icons
-                                    name="loadingSpinner"
-                                    className="animate-spin text-[30px]"
-                                />
-                                <p>لطفا منتظر بمانید</p>
-                            </div>
-                        )}
-                    </button>
+
+                    <PrimaryButton loading={loading}>
+                        ورود / ثبت‌نام
+                    </PrimaryButton>
                 </form>
             </div>
         </div>

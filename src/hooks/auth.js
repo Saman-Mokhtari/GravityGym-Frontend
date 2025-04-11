@@ -19,7 +19,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         () =>
             axios
                 .get('/api/user')
-                .then(res => res.data)
+                .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
 
@@ -45,9 +45,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 return mutate()
             })
             .catch(error => {
+                setLoading(false)
                 if (error.response?.status !== 422) throw error
                 setErrors(error.response.data.errors)
-                setLoading(false)
             })
     }
 
@@ -62,9 +62,46 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .post('/otp', props)
             .then(res => {
                 Cookies.set('Authorization', `Bearer ${res.data.token}`, {
-                    expires: 7,
+                    expires: 30,
                 })
-                window.location.pathname = '/dashboard'
+                router.replace('/dashboard')
+                return mutate()
+            })
+            .catch(error => {
+                const status = error.response?.status
+                const errors = error.response?.data?.errors || {}
+
+                if (status === 422) {
+                    setErrors({
+                        ...errors,
+                        status: 422,
+                    })
+                } else {
+                    setErrors({
+                        ...errors,
+                        status: 500,
+                    })
+                }
+
+                setLoading(false)
+            })
+    }
+
+    const completeSignup = async ({
+        setErrors,
+        setInformationSuccess,
+        ...props
+    }) => {
+        setLoading(true)
+        await csrf()
+
+        setErrors([])
+
+        axios
+            .post('/complete-signup', props)
+            .then(() => {
+                setLoading(false)
+                setInformationSuccess(true)
                 return mutate()
             })
             .catch(error => {
@@ -129,7 +166,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         if (middleware === 'guest' && redirectIfAuthenticated && user) {
             router.replace(redirectIfAuthenticated)
         } else if (middleware === 'auth' && !user) {
-            router.replace('/login')
+            router.replace('/?login=true')
         } else if (middleware === 'auth' && error) {
             logout()
         } else if (middleware === 'auth' && !user.name) {
@@ -150,6 +187,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     return {
         user,
         otp,
+        completeSignup,
         loginExpired,
         resendCode,
         login,

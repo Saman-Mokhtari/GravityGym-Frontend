@@ -9,6 +9,7 @@ export default function CenterModal({
     children,
     openModal,
     setOpenModal,
+    className = null,
     overFlow = false,
 }) {
     const modal = useRef(null)
@@ -74,7 +75,7 @@ export default function CenterModal({
             <div
                 ref={modal}
                 style={{ display: 'none', opacity: 0 }}
-                className={`fixed z-[100] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[70vh] h-fit py-4 px-6 rounded-xl shadow-custom bg-bgPrimary overflow-x-hidden flex-col ${overFlow ? 'overflow-y-scroll' : 'overflow-y-hidden'}`}>
+                className={`${className} fixed z-[100] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] max-h-[70vh] h-fit py-4 px-6 rounded-xl shadow-custom bg-bgPrimary overflow-x-hidden flex-col ${overFlow ? 'overflow-y-scroll' : 'overflow-y-hidden'}`}>
                 <div className="w-full">
                     <Icons
                         name="close"
@@ -82,7 +83,7 @@ export default function CenterModal({
                         onClick={closeModal}
                     />
                 </div>
-                {React.cloneElement(children, { closeModal })}
+                {children}
             </div>
         </>
     )
