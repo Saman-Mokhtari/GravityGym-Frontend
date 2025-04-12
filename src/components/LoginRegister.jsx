@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import CornerModal from '@/components/CornerModal'
 import LoginSection from '@/components/LoginSection'
 import OtpSection from '@/components/OtpSection'
@@ -7,9 +7,8 @@ import useWindowSize from '@/hooks/useWindowSize'
 import { Drawer } from 'vaul'
 import { useAuth } from '@/hooks/auth'
 import LoginButton from '@/components/LoginButton'
-import { useSearchParams } from 'next/navigation'
 
-export default function LoginRegister({ onClick }) {
+export default function LoginRegister() {
     const [openModal, setOpenModal] = useState(false)
     const [isClickDisabled, setIsClickDisabled] = useState(false)
     const [codePhase, setCodePhase] = useState(false)

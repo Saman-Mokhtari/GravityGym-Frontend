@@ -1,9 +1,8 @@
 'use client'
-import { useState, useRef, useLayoutEffect } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
-import Link from 'next/link'
 
 export default function ExpandableCard({
     gymClass,
@@ -160,6 +159,7 @@ function ExpandableDetail({
                                 id: subscription.id,
                                 session_count: subscription.session_count,
                                 price: subscription.price,
+                                description: `${subscription.session_count} جلسه در ماه (${subscription.session_count / 4} جلسه در هفته)`,
                             },
                         })
                     }}

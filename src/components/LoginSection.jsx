@@ -2,8 +2,7 @@
 import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
 import { useAuth } from '@/hooks/auth'
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import ErrorLabel from '@/components/ErrorLabel'
 import PrimaryButton from '@/components/PrimaryButton'
 
@@ -12,13 +11,10 @@ export default function LoginSection({
     setPhoneNumber,
     error,
 }) {
-    const router = useRouter()
     const { login, loading } = useAuth()
 
     const [phone, setPhone] = useState(null)
-    const [shouldRemember, setShouldRemember] = useState(true)
     const [errors, setErrors] = useState({})
-    const [status, setStatus] = useState(null)
 
     const submitForm = async event => {
         event.preventDefault()
@@ -26,9 +22,7 @@ export default function LoginSection({
         try {
             await login({
                 phone_number: phone,
-                remember: shouldRemember,
                 setErrors,
-                setStatus,
                 validationSuccess,
             })
         } catch (error) {

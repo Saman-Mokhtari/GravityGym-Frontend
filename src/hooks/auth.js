@@ -25,17 +25,11 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
-    const login = async ({
-        setErrors,
-        setStatus,
-        validationSuccess,
-        ...props
-    }) => {
+    const login = async ({ setErrors, validationSuccess, ...props }) => {
         setLoading(true)
         await csrf()
 
         setErrors([])
-        setStatus(null)
 
         axios
             .post('/login', props)
@@ -51,12 +45,11 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    const otp = async ({ setErrors, setStatus, ...props }) => {
+    const otp = async ({ setErrors, ...props }) => {
         setLoading(true)
         await csrf()
 
         setErrors([])
-        setStatus(null)
 
         axios
             .post('/otp', props)
@@ -130,7 +123,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         axios
             .post('/resendCode', props)
-            .then(res => {
+            .then(() => {
                 setCodeSent(true)
                 setLoading(false)
                 return mutate()
@@ -145,7 +138,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
         axios
             .post('/loginExpired', props)
-            .then(res => {
+            .then(() => {
                 return mutate()
             })
             .catch(error => {

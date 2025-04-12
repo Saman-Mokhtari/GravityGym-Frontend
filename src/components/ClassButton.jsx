@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import calisthenics from '/public/images/calisthenics.png'
-import yoga from '/public/images/yoga.png'
 import Icons from '@/components/Icons'
 
 export default function ClassButton() {

@@ -1,26 +1,20 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
 import CodeInput from './CodeInput'
 import FormLabel from '@/components/FormLabel'
-import Icons from '@/components/Icons'
 import ResendCode from '@/components/ResendCode'
 import ErrorLabel from '@/components/ErrorLabel'
-import { error } from 'next/dist/build/output/log'
 import PrimaryButton from '@/components/PrimaryButton'
 
 export default function OtpSection({ codeExpired, phoneNumber }) {
-    const router = useRouter()
     const { otp, loading } = useAuth({
         middleware: 'guest',
         redirectIfAuthenticated: '/dashboard',
     })
 
     const [errors, setErrors] = useState([])
-    const [status, setStatus] = useState(null)
 
     const [part1, setPart1] = useState('')
     const [part2, setPart2] = useState('')
@@ -56,7 +50,7 @@ export default function OtpSection({ codeExpired, phoneNumber }) {
         const fullCode = part1 + part2 + part3 + part4 + part5
 
         try {
-            await otp({ code: fullCode, setErrors, setStatus })
+            await otp({ code: fullCode, setErrors })
         } catch (error) {
             setErrors(prevErrors => ({
                 ...prevErrors,

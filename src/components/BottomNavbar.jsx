@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import Icons from './Icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import NavigateToTop from './NavigateToTop'
 import useWindowSize from '@/hooks/useWindowSize'
 
 function BottomNavbar() {

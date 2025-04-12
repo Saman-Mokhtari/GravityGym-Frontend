@@ -1,6 +1,3 @@
-import Navigation from '@/components/Navigation'
-import Image from 'next/image'
-import background from '/public/images/heroBackground.jpg'
 import Header from '@/components/Header'
 import Suggestions from '@/components/Suggestions'
 import ClassCard from '@/components/ClassCard'
@@ -8,7 +5,6 @@ import calis from '/public/images/calisthenics.jpg'
 import yoga from '/public/images/yoga.jpg'
 import fitness from '/public/images/fitness.jpg'
 import Subscription from '@/components/Subscription'
-import Icons from '@/components/Icons'
 import Footer from '@/components/Footer'
 
 export const metadata = {

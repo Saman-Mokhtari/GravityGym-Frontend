@@ -1,11 +1,9 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import gsap from 'gsap'
 import { useGSAP } from '@gsap/react'
 import useClickOutside from '@/hooks/useClickOutside'
 import Icons from '@/components/Icons'
-import { useSearchParams } from 'next/navigation'
-import useWindowSize from '@/hooks/useWindowSize'
 
 export default function CornerModal({
     children,

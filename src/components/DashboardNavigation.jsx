@@ -7,6 +7,7 @@ const routeTexts = {
     '/complete-signup': 'تکمیل ثبت‌نام',
     '/dashboard/classes': 'کلاس‌های من',
     '/dashboard/classes/enroll': 'ثبت‌نام کلاس جدید',
+    '/dashboard/classes/enroll/verify-payment': 'بررسی وضعیت ثبت‌نام',
     '/reports': 'View Reports',
 }
 

@@ -3,7 +3,6 @@ import Image from 'next/image'
 import logo from '/public/images/logo.png'
 import NavLinks from '@/components/NavLinks'
 import { useEffect, useState } from 'react'
-import useWindowSize from '@/hooks/useWindowSize'
 
 export default function Navigation() {
     const [scrolled, setScrolled] = useState(true)

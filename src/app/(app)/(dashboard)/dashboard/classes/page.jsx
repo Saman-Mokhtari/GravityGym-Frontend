@@ -1,13 +1,8 @@
-'use client'
 import FormLabel from '@/components/FormLabel'
-import ClassButton from '@/components/ClassButton'
 import Icons from '@/components/Icons'
 import Link from 'next/link'
-import useWindowSize from '@/hooks/useWindowSize'
 
 export default function Classes() {
-    const { isDesktop } = useWindowSize()
-
     return (
         <>
             <div className="flex flex-col gap-4">

@@ -97,7 +97,7 @@ export default function Subscription() {
                 <>
                     <div
                         onClick={() => {
-                            setOpenModal(true)
+                            handleClick()
                         }}
                         className="w-[60%] !cursor-pointer border-2 border-bgPrimary rounded-md h-16 justify-between px-3 items-center flex">
                         <h2 className="font-bold text-bgPrimary text-center text-[20px]">
