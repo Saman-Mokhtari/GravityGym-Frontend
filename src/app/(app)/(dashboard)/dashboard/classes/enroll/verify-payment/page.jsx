@@ -1,99 +1,57 @@
 'use client'
-import Icons from '@/components/Icons'
-import { useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { usePayment } from '@/hooks/payment'
-import FormLabel from '@/components/FormLabel'
+import Icons from '@/components/Icons'
 import Link from 'next/link'
+import FormLabel from '@/components/FormLabel'
+import { useSearchParams } from 'next/navigation'
+import { usePayment } from '@/hooks/payment'
 
 export default function VerifyPayment() {
-    const searchParms = useSearchParams()
+    const searchParams = useSearchParams()
+    const Authority = searchParams.get('Authority')
+
     const { loading, verify } = usePayment()
-    const [errors, setErrors] = useState({})
-    const [status, setStatus] = useState(null)
+
+    const [errors, setErrors] = useState(null)
 
     useEffect(() => {
-        const Authority = searchParms.get('Authority')
-        const Status = searchParms.get('Status')
-        if (Authority && Status) {
-            const verifyPayment = async () => {
-                try {
-                    await verify({
-                        authority: Authority,
-                        status: Status,
-                        setStatus,
-                        setErrors,
-                    })
-                } catch (error) {
-                    setErrors(prevErrors => ({
-                        ...prevErrors,
-                        phone:
-                            error.response?.status === 401
-                                ? ['Invalid credentials']
-                                : ['An unexpected error occurred'],
-                    }))
-                }
+        if (!Authority) return
+        if (sessionStorage.getItem(`authorityKey:${Authority}`)) return
+
+        const verifyPayment = async () => {
+            try {
+                await verify({ authority: Authority })
+                sessionStorage.setItem(`authorityKey:${Authority}`, 'true')
+            } catch (error) {
+                setErrors({ message: 'خطا در بررسی پرداخت' })
             }
-            verifyPayment()
         }
-    }, [searchParms])
+
+        verifyPayment()
+    }, [Authority])
 
     return (
-        <div className="w-full h-[83vh] justify-center flex ">
-            {loading ? (
-                <div className="flex flex-col gap-4 items-center w-full">
-                    <div className="flex aspect-square w-24 justify-center items-center bg-bgTertiary/5 rounded-full">
-                        <Icons
-                            name="loadingSpinner"
-                            className="text-bgTertiary text-[40px] animate-spin"
-                        />
-                    </div>
-                    <h2 className="flex text-[20px] font-bold">
-                        در حال بررسی وضعیت پرداخت
-                    </h2>
-                    <p className="text-[20px] font-light">
-                        لطفاً چند لحظه منتظر بمانید
-                    </p>
-                </div>
-            ) : (
-                <PaymentStatus status={status} />
-            )}
+        <div className="w-full h-[83vh] justify-center flex desktop:items-center ">
+            <LoadingUI />
         </div>
     )
 }
 
-function LinkToClasses() {
+function LoadingUI() {
     return (
-        <Link
-            href="/dashboard/classes"
-            className="w-full py-5 rounded-md flex justify-center items-center border border-bgTertiary">
-            بازگشت به صفحه قبل
-        </Link>
-    )
-}
-
-function PaymentStatus({ status }) {
-    const success = status?.status === 'success'
-    return (
-        <div className="flex flex-col gap-4 items-center w-full">
-            <div
-                className={`flex aspect-square w-24 justify-center items-center  rounded-full ${success ? 'bg-success/20' : 'bg-error/20'}`}>
+        <div className="flex flex-col gap-4 items-center w-full desktop:w-8/12 border-green-50">
+            <div className="flex aspect-square w-24 justify-center items-center bg-bgTertiary/5 rounded-full">
                 <Icons
-                    name={success ? 'check' : 'close'}
-                    className={`text-[40px] ${success ? 'text-success' : 'text-error'}`}
+                    name="loadingSpinner"
+                    className="text-bgTertiary text-[40px] animate-spin"
                 />
             </div>
-            <h2
-                className={`flex text-[20px] font-bold ${success ? 'text-success' : 'text-error'}`}>
-                {status?.message}
+            <h2 className="flex text-[20px] font-bold">
+                در حال بررسی وضعیت پرداخت
             </h2>
-            <div className="w-full rounded-md mt-6 gap-2 flex flex-col">
-                <FormLabel text="کد رهگیری شما" />
-                <div className="w-full rounded-lg bg-bgInput p-3">
-                    <p className="text-[18px] text-end">{status?.ref_id}</p>
-                </div>
-            </div>
-            <LinkToClasses />
+            <p className="text-[20px] font-light">
+                لطفاً چند لحظه منتظر بمانید
+            </p>
         </div>
     )
 }

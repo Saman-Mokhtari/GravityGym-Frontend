@@ -1,8 +1,8 @@
 import Icons from '@/components/Icons'
 
-export default function SubscriptionCard({ sessions, period }) {
+export default function SubscriptionCard({ sessions, period, price }) {
     return (
-        <div className="aspect-[3/4] bg-bgPrimary flex flex-col justify-between items-center py-6 w-full rounded-2xl">
+        <div className="bg-bgPrimary flex flex-col justify-between items-center py-6 desktop:w-10/12 w-full rounded-2xl h-[28rem]">
             <div className="flex flex-col gap-10 w-full items-center">
                 <div className="flex items-center gap-2">
                     <h2 className="text-[20px] text-textPrimary font-bold">
@@ -49,10 +49,15 @@ export default function SubscriptionCard({ sessions, period }) {
                     </div>
                 </div>
             </div>
-            <div className="flex bg-bgTertiary justify-center items-center px-8 py-3 rounded-full">
-                <h2 className="text-bgPrimary text-[20px] font-light">
-                    ثبت نام
+            <div className=" flex flex-col gap-4 items-center">
+                <h2 className="text-[24px] text-success font-bold">
+                    {(price * 1000000).toLocaleString()} تومانءء
                 </h2>
+                <div className="flex bg-bgTertiary justify-center items-center px-8 py-3 rounded-full">
+                    <h2 className="text-bgPrimary text-[20px] font-light">
+                        ثبت نام
+                    </h2>
+                </div>
             </div>
         </div>
     )

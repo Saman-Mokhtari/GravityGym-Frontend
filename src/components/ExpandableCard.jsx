@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
+import { usePathname } from 'next/navigation'
 
 export default function ExpandableCard({
     gymClass,
@@ -12,12 +13,11 @@ export default function ExpandableCard({
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const contentRef = useRef(null)
-
+    const pathName = usePathname()
     // Animate open/close using scrollHeight trick
     useLayoutEffect(() => {
         const el = contentRef.current
         if (!el) return
-
         if (isOpen) {
             gsap.set(el, { height: 'auto' })
             const fullHeight = el.scrollHeight
@@ -47,7 +47,9 @@ export default function ExpandableCard({
         <div className="w-full max-w-md mx-auto flex flex-col gap-2">
             {/* 👉 Class Button */}
             <button
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => {
+                    setIsOpen(!isOpen)
+                }}
                 className={`flex items-center justify-between w-full px-4 py-4 border border-gray-300 rounded-lg  text-right cursor-pointer transition-all duration-200 ${isOpen && 'bg-bgInput'}`}>
                 <span className="font-semibold text-[17px]">
                     {gymClass.name}
@@ -82,8 +84,8 @@ export default function ExpandableCard({
 
 function ExpandableDetail({
     subscription,
-    gymClass,
     setSelectedSub,
+    gymClass,
     setDrawerIsOpen,
     setOpenModal,
 }) {
@@ -96,9 +98,10 @@ function ExpandableDetail({
                     <FormLabel text="تاریخ و ساعت" />
                 </div>
                 <div className="text-black px-6 flex gap-2">
-                    <p>روزهای {gymClass.day_type}</p>
+                    <p>روزهای {subscription.day_type}</p>
                     <p>
-                        از ساعت {gymClass.start_time} تا {gymClass.end_time}
+                        از ساعت {subscription.start_time} تا{' '}
+                        {subscription.end_time}
                     </p>
                 </div>
             </div>
@@ -124,7 +127,7 @@ function ExpandableDetail({
                     <FormLabel text="مربی" />
                 </div>
                 <div className="text-black px-6">
-                    <p>{gymClass.instructor_name}</p>
+                    <p>{subscription.instructor_name}</p>
                 </div>
             </div>
             {/*Price*/}
@@ -151,11 +154,11 @@ function ExpandableDetail({
                         setOpenModal(false)
                         setSelectedSub({
                             name: gymClass.name,
-                            day_type: gymClass.day_type,
-                            start_time: gymClass.start_time,
-                            end_time: gymClass.end_time,
-                            instructor_name: gymClass.instructor_name,
                             subscription: {
+                                day_type: subscription.day_type,
+                                start_time: subscription.start_time,
+                                end_time: subscription.end_time,
+                                instructor_name: subscription.instructor_name,
                                 id: subscription.id,
                                 session_count: subscription.session_count,
                                 price: subscription.price,

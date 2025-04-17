@@ -10,6 +10,12 @@ html {
     scroll-behavior: smooth;
 }
 
+.sidebarDisable {
+    color: var(--color-bg-input) !important;
+    opacity: 0.2;
+    cursor: not-allowed;
+}
+
 .dashboardPanelShadow {
     -webkit-box-shadow: 1px 1px 9px -3px rgba(0, 0, 0, 0.58);
     -moz-box-shadow: 1px 1px 9px -3px rgba(0, 0, 0, 0.58);

@@ -1,31 +1,52 @@
-// ✅ Refactored Enroll.tsx - Clean, Modular, Maintainable
-
 'use client'
-import React, { useState, useEffect } from 'react'
-import { Drawer } from 'vaul'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
-import CenterModal from '@/components/CenterModal'
 import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
-import ExpandableCard from '@/components/ExpandableCard'
 import useWindowSize from '@/hooks/useWindowSize'
 import { useClass } from '@/hooks/class'
 import { usePayment } from '@/hooks/payment'
 import zarinpal from '/public/images/zarinpal.svg'
+import ClassSelector from '@/components/ClassSelector'
+import { useEnrollments } from '@/hooks/enrollment'
 
 export default function Enroll() {
     const [drawerIsOpen, setDrawerIsOpen] = useState(false)
     const [openModal, setOpenModal] = useState(false)
     const [selectedSub, setSelectedSub] = useState(null)
     const [errors, setErrors] = useState([])
-
     const { isDesktop } = useWindowSize()
     const { gymClassesToAttend } = useClass()
+    const [interferedEnrollment, setInterferedEnrollment] = useState(false)
+    const [limit, setLimit] = useState(false)
+    const { userActiveEnrollments } = useEnrollments()
     const { pay, loading } = usePayment()
+    useEffect(() => {
+        if (selectedSub && userActiveEnrollments) {
+            const activeEnrollment = userActiveEnrollments.filter(
+                enrollment => {
+                    return (
+                        enrollment.subscription.id ===
+                        selectedSub.subscription.id
+                    )
+                },
+            )
+            const hasActiveEnrollment = !!activeEnrollment
+            console.log(hasActiveEnrollment)
+            console.log(activeEnrollment.length > 1)
+            if (activeEnrollment.length === 1) {
+                setInterferedEnrollment(hasActiveEnrollment)
+            } else if (activeEnrollment.length > 1) {
+                console.log('salam')
+                setLimit(true)
+            }
+        }
+    }, [selectedSub])
 
     // Handles payment request to the server
     const handlePay = async event => {
         event.preventDefault()
+        if (loading || !selectedSub) return
         try {
             await pay({
                 description: selectedSub.subscription.description,
@@ -34,17 +55,18 @@ export default function Enroll() {
                 setErrors,
             })
         } catch (error) {
+            console.log(errors)
             setErrors(formatPaymentError(error))
         }
     }
 
     // Main Component
     return (
-        <div className="w-full flex flex-col gap-6 pb-16 desktop:pb-24">
+        <div className="w-full flex flex-col pb-16 desktop:pb-24">
             <div className="w-full flex justify-between gap-8">
-                <div className="w-full desktop:w-1/2 flex flex-col gap-3">
+                <div className="w-full desktop:w-full flex flex-col gap-3">
                     <FormLabel text="کلاس مد نظر خود را انتخاب کنید" />
-                    //Rendering Class Selector for both mobile and desktop
+                    {/*Rendering Class Selector for both mobile and desktop*/}
                     <ClassSelector
                         isDesktop={isDesktop}
                         selectedSub={selectedSub}
@@ -56,20 +78,39 @@ export default function Enroll() {
                         gymClassesToAttend={gymClassesToAttend}
                     />
                 </div>
-                // Pay Button for desktop
-                {isDesktop && selectedSub && (
-                    <PaymentBox
-                        selectedSub={selectedSub}
-                        loading={loading}
-                        onPay={handlePay}
-                    />
-                )}
+                {/*Pay Button for desktop*/}
             </div>
-            // Payment summary and mobile payment button
+            {/*Payment summary and mobile payment button*/}
             {selectedSub && (
-                <div className="w-full flex flex-col gap-3">
-                    <SubscriptionSummary selectedSub={selectedSub} />
-                    {!isDesktop && (
+                <div className="w-full flex flex-col gap-3 mt-4">
+                    {interferedEnrollment && (
+                        <div className="w-full flex items-center text-error font-bold leading-10">
+                            <p>
+                                توجه: شما در حال حاضر دارای اشتراک فعال برای
+                                کلاس انتخابی خود هستید. در صورت ثبت‌نام در کلاس
+                                جدید، کلاس رزرو شده و پس از پایان اشتراک فعلی،
+                                به‌صورت خودکار فعال خواهد شد.{' '}
+                            </p>
+                        </div>
+                    )}
+                    {limit && (
+                        <div className="w-full flex items-center text-error font-bold leading-10">
+                            <p>
+                                به دلیل داشتن اشتراک رزرو در این کلاس، امکان
+                                خرید مجدد آن برای شما وجود ندارد.
+                            </p>
+                        </div>
+                    )}
+                    {!limit && (
+                        <SubscriptionSummary
+                            selectedSub={selectedSub}
+                            isDesktop={isDesktop}
+                            loading={loading}
+                            handlePay={handlePay}
+                            limit={limit}
+                        />
+                    )}
+                    {!isDesktop && !limit && (
                         <PaymentBox
                             selectedSub={selectedSub}
                             loading={loading}
@@ -95,45 +136,61 @@ const formatPaymentError = error => ({
 
 // Summary section
 const SummarySection = ({ icon, label, children }) => (
-    <div className="flex flex-col gap-2 px-2">
+    <div className="flex flex-col gap-2 ">
         <div className="flex items-center gap-2">
             <Icons name={icon} className="text-border" />
             <FormLabel text={label} />
         </div>
-        <div className="text-black text-[18px] font-medium">{children}</div>
+        <div className="text-black text-[18px] font-medium px-7">
+            {children}
+        </div>
     </div>
 )
 
 //Summary section container
-const SubscriptionSummary = ({ selectedSub }) => (
-    <div className="flex flex-col gap-6">
+const SubscriptionSummary = ({
+    selectedSub,
+    isDesktop,
+    loading,
+    handlePay,
+    limit,
+}) => (
+    <div className="flex flex-col gap-6 desktop:gap-4 desktop:justify-center desktop:p-4 desktop:rounded-xl">
         <SummarySection icon="dumbleSolid" label="کلاس انتخاب شده">
             {selectedSub.name}
         </SummarySection>
         <SummarySection icon="clock" label="تاریخ و ساعت">
-            روزهای {selectedSub.day_type} از ساعت {selectedSub.start_time} تا{' '}
-            {selectedSub.end_time}
+            روزهای {selectedSub.subscription.day_type} از ساعت{' '}
+            {selectedSub.subscription.start_time} تا{' '}
+            {selectedSub.subscription.end_time}
         </SummarySection>
         <SummarySection icon="calendar" label="تعداد جلسات">
             {selectedSub.subscription.session_count} جلسه در ماه (
             {selectedSub.subscription.session_count / 4} جلسه در هفته)
         </SummarySection>
         <SummarySection icon="trainer" label="مربی">
-            {selectedSub.instructor_name}
+            {selectedSub.subscription.instructor_name}
         </SummarySection>
         <SummarySection icon="gateway" label="درگاه پرداخت">
-            <Image src={zarinpal} alt="zarinpal" className="w-6 h-6" />
+            <Image src={zarinpal} alt="zarinpal" className="w-24" />
         </SummarySection>
+        {isDesktop && !limit && (
+            <PaymentBox
+                selectedSub={selectedSub}
+                loading={loading}
+                onPay={handlePay}
+            />
+        )}
     </div>
 )
 
-//Payment button
+// Payment button
 const PaymentBox = ({ selectedSub, loading, onPay, isMobile = false }) => (
     <div
         className={`flex justify-between items-center ${
             isMobile
-                ? 'w-full fixed bottom-0 right-0 px-4 py-3 bg-success shadow-custom'
-                : 'w-full desktop:w-1/2 px-4 py-3 bg-success rounded-md shadow-custom'
+                ? 'w-full  fixed bottom-0 right-0 px-4 py-3 bg-success shadow-custom'
+                : 'w-full desktop:w-full px-4 py-3 bg-success rounded-md shadow-custom'
         }`}>
         <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 text-bgPrimary">
@@ -147,7 +204,7 @@ const PaymentBox = ({ selectedSub, loading, onPay, isMobile = false }) => (
         <button
             onClick={onPay}
             disabled={loading}
-            className="flex justify-center items-center bg-bgPrimary p-4 rounded-md w-5/12 hover:scale-[1.02] transition-all">
+            className="flex justify-center items-center bg-bgPrimary py-4 px-2 rounded-md w-6/12 desktop:w-3/12 hover:scale-[1.02] transition-all">
             {!loading ? (
                 <p className="font-bold text-[18px] text-textSecondary">
                     پرداخت
@@ -164,105 +221,3 @@ const PaymentBox = ({ selectedSub, loading, onPay, isMobile = false }) => (
         </button>
     </div>
 )
-
-// Class selector component including modal and drawe phone desktop and mobile
-const ClassSelector = ({
-    isDesktop,
-    selectedSub,
-    setSelectedSub,
-    setDrawerIsOpen,
-    setOpenModal,
-    drawerIsOpen,
-    openModal,
-    gymClassesToAttend,
-}) => {
-    return !isDesktop ? (
-        <Drawer.Root
-            open={drawerIsOpen}
-            onOpenChange={setDrawerIsOpen}
-            dismissible>
-            <Drawer.Trigger className="cursor-pointer w-full">
-                <div className="w-full border border-textPrimary rounded-md h-16 justify-between px-3 items-center flex">
-                    <h2 className="font-light text-textPrimary text-center text-[20px]">
-                        {selectedSub ? selectedSub.name : 'انتخاب کنید'}
-                    </h2>
-                    <Icons
-                        name="caretDown"
-                        className="text-[25px] text-textPrimary"
-                    />
-                </div>
-            </Drawer.Trigger>
-            <Drawer.Portal>
-                <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[100]" />
-                <Drawer.Content className="bg-bgPrimary p-4 z-[101] flex flex-col font-font gap-6 fixed bottom-0 left-0 right-0 max-h-[90vh] rounded-t-[10px]">
-                    <div
-                        dir="rtl"
-                        className="flex flex-col w-full h-full py-4 gap-8">
-                        <div className="flex flex-col items-center px-2 left-1/2 -translate-x-1/2 gap-12 w-full fixed top-3 bg-bgPrimary">
-                            <Drawer.Handle />
-                            <p className="text-[18px] w-full text-start">
-                                کلاس مورد نظر خود را انتخاب کنید
-                            </p>
-                        </div>
-                        <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[80vh] mt-20">
-                            <div className="w-full h-fit flex flex-col">
-                                {Array.isArray(gymClassesToAttend) &&
-                                    gymClassesToAttend.map(gymClass => (
-                                        <ExpandableCard
-                                            key={gymClass.id}
-                                            gymClass={gymClass}
-                                            setSelectedSub={setSelectedSub}
-                                            setDrawerIsOpen={setDrawerIsOpen}
-                                            setOpenModal={setOpenModal}
-                                        />
-                                    ))}
-                            </div>
-                        </div>
-                    </div>
-                </Drawer.Content>
-            </Drawer.Portal>
-        </Drawer.Root>
-    ) : (
-        <>
-            <div
-                onClick={() => setOpenModal(true)}
-                className="w-full cursor-pointer border border-textPrimary rounded-md h-16 justify-between px-3 items-center flex">
-                <h2 className="font-light text-textPrimary text-center text-[20px]">
-                    {selectedSub ? selectedSub.name : 'انتخاب کنید'}
-                </h2>
-                <Icons
-                    name="caretDown"
-                    className="text-[25px] text-textPrimary"
-                />
-            </div>
-            <CenterModal
-                className="w-[30vw]"
-                openModal={openModal}
-                setOpenModal={setOpenModal}>
-                <div
-                    dir="rtl"
-                    className="flex flex-col w-full h-full py-4 gap-8">
-                    <div className="flex flex-col items-center left-1/2 -translate-x-1/2 gap-12 w-full fixed top-16 bg-bgPrimary px-8 border-b pb-4">
-                        <p className="text-[18px] w-full text-start">
-                            کلاس مورد نظر خود را انتخاب کنید
-                        </p>
-                    </div>
-                    <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[55vh] mt-16">
-                        <div className="w-full h-fit flex flex-col">
-                            {Array.isArray(gymClassesToAttend) &&
-                                gymClassesToAttend.map(gymClass => (
-                                    <ExpandableCard
-                                        key={gymClass.id}
-                                        gymClass={gymClass}
-                                        setSelectedSub={setSelectedSub}
-                                        setDrawerIsOpen={setDrawerIsOpen}
-                                        setOpenModal={setOpenModal}
-                                    />
-                                ))}
-                        </div>
-                    </div>
-                </div>
-            </CenterModal>
-        </>
-    )
-}

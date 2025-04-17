@@ -57,7 +57,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 Cookies.set('Authorization', `Bearer ${res.data.token}`, {
                     expires: 30,
                 })
-                router.replace('/dashboard')
+                router.replace('/dashboard/classes')
                 return mutate()
             })
             .catch(error => {
@@ -150,7 +150,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         if (!error) {
             await axios.post('/logout').then(() => mutate())
         }
-        window.location.pathname = '/login'
+        router.replace('/')
     }
 
     useEffect(() => {

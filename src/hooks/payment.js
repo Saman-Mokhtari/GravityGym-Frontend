@@ -17,8 +17,8 @@ export const usePayment = () => {
             .post('/pay', props)
             .then(res => {
                 const paymentData = JSON.parse(res.data.payment_url)
-                setLoading(false)
                 router.replace(paymentData.action)
+                setLoading(false)
             })
             .catch(error => {
                 setLoading(false)
@@ -27,21 +27,19 @@ export const usePayment = () => {
             })
     }
 
-    const verify = async ({ setErrors, setStatus, ...props }) => {
+    const verify = async ({ ...props }) => {
         setLoading(true)
         await csrf()
-        setErrors([])
-
         axios
             .post('/verify', props)
             .then(res => {
-                setStatus(res.data)
-                return setLoading(false)
+                router.replace(
+                    `/dashboard/classes/enroll/verify-payment/success?status=${res.data.status}&ref_id=${res.data.ref_id}&message=${res.data.message}`,
+                )
             })
             .catch(error => {
                 setLoading(false)
                 if (error.response?.status !== 422) throw error
-                setErrors(error.response.data.errors)
             })
     }
 
