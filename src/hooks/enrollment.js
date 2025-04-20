@@ -5,7 +5,7 @@ import useSWR from 'swr'
 export const useEnrollments = () => {
     // const [loading, setLoading] = useState(false)
     // const router = useRouter()
-    // const csrf = () => axios.get('/sanctum/csrf-cookie')
+    const csrf = () => axios.get('/sanctum/csrf-cookie')
 
     const { data: userEnrollments } = useSWR(
         '/api/userEnrollments',
@@ -15,6 +15,21 @@ export const useEnrollments = () => {
                 .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
+
+    const userEnrollment = async ({ setErrors, setEnrollment, ...props }) => {
+        setErrors([])
+
+        axios
+            .get('/api/userEnrollment', { params: props })
+            .then(res => {
+                const data = res.data.data[0]
+                return setEnrollment(data)
+            })
+            .catch(error => {
+                if (error.response?.status !== 422) throw error
+                setErrors(error.response.data.errors)
+            })
+    }
 
     const { data: userActiveEnrollments } = useSWR(
         '/api/userActiveEnrollments',
@@ -28,5 +43,6 @@ export const useEnrollments = () => {
     return {
         userEnrollments,
         userActiveEnrollments,
+        userEnrollment,
     }
 }
