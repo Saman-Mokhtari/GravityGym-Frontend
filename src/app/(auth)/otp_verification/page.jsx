@@ -14,7 +14,7 @@ const OtpVerificaion = () => {
 
     const { otp } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        redirectIfAuthenticated: '/admin',
     })
 
     const [code, setCode] = useState('')

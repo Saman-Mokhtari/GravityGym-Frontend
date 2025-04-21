@@ -22,7 +22,7 @@ export default function CompleteSignup() {
     const [informationSuccess, setInformationSuccess] = useState(false)
     const { completeSignup, loading } = useAuth({
         middleware: 'informationCheck',
-        redirectIfAuthenticated: '/dashboard',
+        redirectIfAuthenticated: '/admin',
     })
 
     useEffect(() => {

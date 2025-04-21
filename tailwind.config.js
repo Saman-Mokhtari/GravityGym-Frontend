@@ -38,13 +38,13 @@ module.exports = {
                     if (opacityValue !== undefined) {
                         return `rgba(var(--color-bg-dashboard), ${opacityValue})`
                     }
-                    return 'rgb(var(--color-bg-dashboard))'
+                    return 'rgb(var(--color-bg-admin))'
                 },
                 bgDashboardHover: ({ opacityValue }) => {
                     if (opacityValue !== undefined) {
                         return `rgba(var(--color-bg-dashboard-hover), ${opacityValue})`
                     }
-                    return 'rgb(var(--color-bg-dashboard-hover))'
+                    return 'rgb(var(--color-bg-admin-hover))'
                 },
                 bgTertiary: ({ opacityValue }) => {
                     if (opacityValue !== undefined) {

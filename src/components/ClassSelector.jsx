@@ -12,7 +12,7 @@ export default function ClassSelector({
     setOpenModal,
     drawerIsOpen,
     openModal,
-    gymClassesToAttend,
+    classes,
 }) {
     return !isDesktop ? (
         <Drawer.Root
@@ -44,8 +44,8 @@ export default function ClassSelector({
                         </div>
                         <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[72vh] mt-20">
                             <div className="w-full h-fit flex flex-col">
-                                {Array.isArray(gymClassesToAttend) &&
-                                    gymClassesToAttend.map(gymClass => (
+                                {Array.isArray(classes) &&
+                                    classes.map(gymClass => (
                                         <ExpandableCard
                                             key={gymClass.id}
                                             gymClass={gymClass}
@@ -87,8 +87,8 @@ export default function ClassSelector({
                     </div>
                     <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[55vh] mt-16">
                         <div className="w-full h-fit flex flex-col">
-                            {Array.isArray(gymClassesToAttend) &&
-                                gymClassesToAttend.map(gymClass => (
+                            {Array.isArray(classes) &&
+                                classes.map(gymClass => (
                                     <ExpandableCard
                                         key={gymClass.id}
                                         gymClass={gymClass}

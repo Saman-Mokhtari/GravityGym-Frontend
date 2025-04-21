@@ -40,10 +40,10 @@ function BottomNavbar() {
                 className={`flex  z-40 fixed bg-bgPrimary w-full bottom-0 font-light shadow-custom items-center  font-font  transition-all duration-25 ${!scrolled ? 'translate-y-full' : 'translate-y-0'} ${isDesktop && 'hidden'} ${pathName === '/complete-signup' || (pathName === '/dashboard/classes/enroll' && 'hidden')}`}>
                 <Link
                     href="/dashboard"
-                    className={`flex flex-col w-1/3 py-3 ${pathName === '/dashboard' && 'bg-bgInput'} items-center justify-center gap-2`}>
+                    className={`flex flex-col w-1/3 py-3 ${pathName === '/admin' && 'bg-bgInput'} items-center justify-center gap-2`}>
                     <Icons
                         name={
-                            pathName === '/dashboard'
+                            pathName === '/admin'
                                 ? 'analyticsSolid'
                                 : 'analytics'
                         }
@@ -52,7 +52,7 @@ function BottomNavbar() {
                     <h2>در یک نگاه</h2>
                 </Link>
                 <Link
-                    href="/dashboard/classes"
+                    href="/src/app/(app)/(admin)/admin/classes"
                     className={`flex flex-col w-1/3 py-3 ${
                         pathName.startsWith('/dashboard/classes')
                             ? 'bg-bgInput font-medium'
@@ -71,12 +71,10 @@ function BottomNavbar() {
 
                 <Link
                     href="/dashboard/profile"
-                    className={`flex flex-col w-1/3 py-3 ${pathName === '/dashboard/profile' && 'bg-bgInput font-medium'} items-center justify-center gap-2`}>
+                    className={`flex flex-col w-1/3 py-3 ${pathName === '/admin/profile' && 'bg-bgInput font-medium'} items-center justify-center gap-2`}>
                     <Icons
                         name={
-                            pathName === '/dashboard/profile'
-                                ? 'user'
-                                : 'userLight'
+                            pathName === '/admin/profile' ? 'user' : 'userLight'
                         }
                         className="text-[27px] fa-thin"
                     />

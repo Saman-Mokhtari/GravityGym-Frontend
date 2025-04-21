@@ -1,9 +1,6 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import SubscriptionCard from '@/components/SubscriptionCard'
-import useWindowSize from '@/hooks/useWindowSize'
-import ClassSelector from '@/components/ClassSelector'
-import { useClass } from '@/hooks/class'
 import SubscriptionClassList from '@/components/SubscriptionClassList'
 
 export default function Subscription() {

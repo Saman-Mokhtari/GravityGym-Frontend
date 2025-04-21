@@ -49,7 +49,7 @@
     "logout": "fa-light fa-right-from-bracket",
     "notFound": "fa-light fa-circle-exclamation",
     "calendar": "fa-solid fa-calendar-days",
-    "grid": "fa-light fa-grid-2",
+    "gridLight": "fa-light fa-grid-2",
     "gridSolid": "fa-solid fa-grid-2",
     "price": "fa-solid fa-money-bill-wave",
     "gateway": "fa-solid fa-sign-post",

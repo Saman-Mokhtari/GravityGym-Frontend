@@ -2,11 +2,21 @@
 import axios from '@/lib/axios'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import useSWR from 'swr'
 
 export const usePayment = () => {
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const csrf = () => axios.get('/sanctum/csrf-cookie')
+
+    const { data: payments } = useSWR(
+        '/api/payments',
+        () =>
+            axios
+                .get('/api/payments')
+                .then(res => res.data.data)
+                .catch(() => null), // Return `null` on error instead of `undefined`
+    )
 
     const pay = async ({ setErrors, ...props }) => {
         setLoading(true)
@@ -14,7 +24,7 @@ export const usePayment = () => {
         setErrors([])
 
         axios
-            .post('/pay', props)
+            .post('/api/pay', props)
             .then(res => {
                 const paymentData = JSON.parse(res.data.payment_url)
                 router.replace(paymentData.action)
@@ -31,7 +41,7 @@ export const usePayment = () => {
         setLoading(true)
         await csrf()
         axios
-            .post('/verify', props)
+            .post('/api/verify', props)
             .then(res => {
                 router.replace(
                     `/dashboard/classes/enroll/verify-payment/success?status=${res.data.status}&ref_id=${res.data.ref_id}&message=${res.data.message}`,
@@ -44,6 +54,7 @@ export const usePayment = () => {
     }
 
     return {
+        payments,
         pay,
         loading,
         verify,

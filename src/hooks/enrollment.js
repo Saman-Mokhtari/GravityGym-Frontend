@@ -7,20 +7,20 @@ export const useEnrollments = () => {
     // const router = useRouter()
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
-    const { data: userEnrollments } = useSWR(
-        '/api/userEnrollments',
+    const { data: enrollments } = useSWR(
+        '/api/enrollments',
         () =>
             axios
-                .get('/api/userEnrollments')
+                .get('/api/enrollments')
                 .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
 
-    const userEnrollment = async ({ setErrors, setEnrollment, ...props }) => {
+    const enrollment = async ({ setErrors, setEnrollment, ...props }) => {
         setErrors([])
 
         axios
-            .get('/api/userEnrollment', { params: props })
+            .get('/api/enrollment', { params: props })
             .then(res => {
                 const data = res.data.data[0]
                 return setEnrollment(data)
@@ -31,18 +31,18 @@ export const useEnrollments = () => {
             })
     }
 
-    const { data: userActiveEnrollments } = useSWR(
-        '/api/userActiveEnrollments',
+    const { data: active } = useSWR(
+        '/api/enrollments/active',
         () =>
             axios
-                .get('/api/userActiveEnrollments')
+                .get('/api/enrollments/active')
                 .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
 
     return {
-        userEnrollments,
-        userActiveEnrollments,
-        userEnrollment,
+        enrollments,
+        active,
+        enrollment,
     }
 }

@@ -6,7 +6,7 @@ import Icons from '@/components/Icons'
 export default function ClassButton({ enrollment }) {
     return (
         <Link
-            href={`/dashboard/classes/${enrollment.id}`}
+            href={`/admin/classes/${enrollment.id}`}
             className={`flex w-full desktop:w-1/2 items-center hover:scale-[1.02] transition-all justify-between border border-bgTertiary p-4 rounded-md ${enrollment.status === 'cancelled' || enrollment.status === 'expired' ? 'opacity-50' : ''} ${enrollment.status === 'reserved' ? 'opacity-30' : ''}`}>
             <div className="flex items-center gap-4">
                 <Image src={calisthenics} alt="calis" width={50} height={50} />

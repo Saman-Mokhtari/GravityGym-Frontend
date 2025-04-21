@@ -52,8 +52,8 @@ function Sidebar({ user, logout, pathName }) {
                 <div className="mt-8 flex flex-col gap-2">
                     <FormLabel text="مدیریت" />
                     <SidebarLink
-                        className="sidebarDisable"
-                        href="/dashboard"
+                        className=""
+                        href="/admin"
                         icon={pathName === '/admin' ? 'gridSolid' : 'gridLight'}
                         active={pathName === '/admin'}
                         label="صفحه اصلی داشبورد"
@@ -61,14 +61,14 @@ function Sidebar({ user, logout, pathName }) {
 
                     <SidebarLink
                         className=""
-                        href="/dashboard/classes"
-                        active={pathName.startsWith('/dashboard/classes')}
+                        href="/admin/classes"
+                        active={pathName.startsWith('/admin/classes')}
                         icon={
-                            pathName.startsWith('/dashboard/classes')
+                            pathName.startsWith('/admin/classes')
                                 ? 'dumbleSolid'
                                 : 'dumbleLight'
                         }
-                        label="کلاس‌های من"
+                        label="مدیریت کلاس‌ها"
                     />
                 </div>
             </div>
@@ -81,7 +81,7 @@ function Sidebar({ user, logout, pathName }) {
                             className="text-[20px] text-textSecondary"
                         />
                     </div>
-                    <h2 className="font-bold text-[18px]">{user.name}</h2>
+                    <h2 className="font-bold text-[18px]">{user?.name}</h2>
                 </div>
 
                 <div
@@ -134,7 +134,7 @@ function MainPanel({ children, pathName }) {
                 {pathName === '/dashboard/classes' && (
                     <div className="flex items-center gap-2 text-success flex-row-reverse">
                         <Link
-                            href="/dashboard/classes/enroll"
+                            href="/src/app/(app)/(admin)/admin/classes/enroll"
                             className="flex items-center gap-2 flex-row-reverse hover:scale-105 transition-all">
                             <p className="text-[16px] font-medium">
                                 ثبت نام کلاس جدید

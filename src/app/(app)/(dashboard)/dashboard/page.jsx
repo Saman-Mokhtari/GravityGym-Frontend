@@ -1,5 +1,4 @@
 'use client'
-import Header from '@/app/(app)/(dashboard)/Header'
 import { useAuth } from '@/hooks/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'

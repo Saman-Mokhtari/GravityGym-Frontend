@@ -1,8 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Icons from '@/components/Icons'
-import Link from 'next/link'
-import FormLabel from '@/components/FormLabel'
 import { useSearchParams } from 'next/navigation'
 import { usePayment } from '@/hooks/payment'
 

@@ -23,6 +23,15 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
 
+    const { data: users } = useSWR(
+        '/api/users',
+        () =>
+            axios
+                .get('/api/users')
+                .then(res => res.data.data)
+                .catch(() => null), // Return `null` on error instead of `undefined`
+    )
+
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
     const login = async ({ setErrors, validationSuccess, ...props }) => {
@@ -57,7 +66,11 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 Cookies.set('Authorization', `Bearer ${res.data.token}`, {
                     expires: 30,
                 })
-                router.replace('/dashboard/classes')
+                if (res?.data?.user?.role !== 'superUser') {
+                    router.replace('/dashboard/classes')
+                } else {
+                    router.replace('/admin')
+                }
                 return mutate()
             })
             .catch(error => {
@@ -179,6 +192,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
 
     return {
         user,
+        users,
         otp,
         completeSignup,
         loginExpired,

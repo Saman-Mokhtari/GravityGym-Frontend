@@ -29,7 +29,7 @@ export default function DashboardNavigation() {
                 <h2 className="text-[20px] font-medium">{routeText}</h2>
             </div>
             {currentRoute === '/dashboard/classes' && (
-                <Link href="/dashboard/classes/enroll">
+                <Link href="/src/app/(app)/(admin)/admin/classes/enroll">
                     <Icons name="plus" className="text-[25px]" />
                 </Link>
             )}

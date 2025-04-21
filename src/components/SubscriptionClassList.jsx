@@ -1,6 +1,5 @@
 import { Drawer } from 'vaul'
 import Icons from '@/components/Icons'
-import ExpandableCard from '@/components/ExpandableCard'
 import CenterModal from '@/components/CenterModal'
 import React, { useState } from 'react'
 import useWindowSize from '@/hooks/useWindowSize'
@@ -13,7 +12,7 @@ export default function SubscriptionClassList({
     const { isDesktop } = useWindowSize()
     const [drawerIsOpen, setDrawerIsOpen] = useState(false)
     const [openModal, setOpenModal] = useState(false)
-    const { gymClassesToAttend } = useClass()
+    const { active } = useClass()
     return !isDesktop ? (
         <Drawer.Root
             open={drawerIsOpen}
@@ -46,8 +45,8 @@ export default function SubscriptionClassList({
                         </div>
                         <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[72vh] mt-20">
                             <div className="w-full h-fit flex flex-col gap-4">
-                                {Array.isArray(gymClassesToAttend) &&
-                                    gymClassesToAttend.map(gymClass => (
+                                {Array.isArray(active) &&
+                                    active.map(gymClass => (
                                         // <ExpandableCard
                                         //     key={gymClass.id}
                                         //     gymClass={gymClass}
@@ -101,8 +100,8 @@ export default function SubscriptionClassList({
                     </div>
                     <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[50vh] mt-16">
                         <div className="w-full h-fit flex flex-col gap-4">
-                            {Array.isArray(gymClassesToAttend) &&
-                                gymClassesToAttend.map(gymClass => (
+                            {Array.isArray(active) &&
+                                active.map(gymClass => (
                                     <div
                                         onClick={() => {
                                             setSelectedClass(gymClass)

@@ -3,15 +3,25 @@ import useSWR from 'swr'
 import axios from '@/lib/axios'
 
 export const useClass = () => {
-    const { data: gymClassesToAttend } = useSWR(
-        '/api/gymClassesToAttend',
+    const { data: active } = useSWR(
+        '/api/classes/active',
         () =>
             axios
-                .get('/api/gymClassesToAttend')
+                .get('/api/classes/active')
+                .then(res => res.data.data)
+                .catch(() => null), // Return `null` on error instead of `undefined`
+    )
+
+    const { data: classes } = useSWR(
+        '/api/classes',
+        () =>
+            axios
+                .get('/api/classes')
                 .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
     return {
-        gymClassesToAttend,
+        active,
+        classes,
     }
 }

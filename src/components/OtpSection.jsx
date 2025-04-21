@@ -11,7 +11,7 @@ import PrimaryButton from '@/components/PrimaryButton'
 export default function OtpSection({ codeExpired, phoneNumber }) {
     const { otp, loading } = useAuth({
         middleware: 'guest',
-        redirectIfAuthenticated: '/dashboard',
+        redirectIfAuthenticated: '/admin',
     })
 
     const [errors, setErrors] = useState([])

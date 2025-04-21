@@ -16,28 +16,22 @@ export default function Enroll() {
     const [selectedSub, setSelectedSub] = useState(null)
     const [errors, setErrors] = useState([])
     const { isDesktop } = useWindowSize()
-    const { gymClassesToAttend } = useClass()
+    const { active: activeClasses } = useClass()
     const [interferedEnrollment, setInterferedEnrollment] = useState(false)
     const [limit, setLimit] = useState(false)
-    const { userActiveEnrollments } = useEnrollments()
+    const { active: activeEnrollments } = useEnrollments()
     const { pay, loading } = usePayment()
     useEffect(() => {
-        if (selectedSub && userActiveEnrollments) {
-            const activeEnrollment = userActiveEnrollments.filter(
-                enrollment => {
-                    return (
-                        enrollment.subscription.id ===
-                        selectedSub.subscription.id
-                    )
-                },
-            )
+        if (selectedSub && activeEnrollments) {
+            const activeEnrollment = activeEnrollments.filter(enrollment => {
+                return (
+                    enrollment.subscription.id === selectedSub.subscription.id
+                )
+            })
             const hasActiveEnrollment = !!activeEnrollment
-            console.log(hasActiveEnrollment)
-            console.log(activeEnrollment.length > 1)
             if (activeEnrollment.length === 1) {
                 setInterferedEnrollment(hasActiveEnrollment)
             } else if (activeEnrollment.length > 1) {
-                console.log('salam')
                 setLimit(true)
             }
         }
@@ -75,7 +69,7 @@ export default function Enroll() {
                         setOpenModal={setOpenModal}
                         drawerIsOpen={drawerIsOpen}
                         openModal={openModal}
-                        gymClassesToAttend={gymClassesToAttend}
+                        classes={activeClasses}
                     />
                 </div>
                 {/*Pay Button for desktop*/}

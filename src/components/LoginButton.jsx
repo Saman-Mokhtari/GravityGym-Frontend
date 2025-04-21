@@ -8,7 +8,7 @@ export default function LoginButton({ handleClick = null }) {
     const { isDesktop } = useWindowSize()
     return user ? (
         <Link
-            href="/dashboard"
+            href={user?.role !== 'superUser' ? '/dashboard' : '/admin'}
             className="w-52 py-4 cursor-pointer hover:scale-105 duration-200 transition-all bg-bgSecondary flex justify-center items-center text-center rounded-full mt-8 desktop:mt-0">
             <p className="text-textPrimary text-[18px] font-bold">
                 ورود به پنل کاربری

@@ -4,7 +4,6 @@ import { useEnrollments } from '@/hooks/enrollment'
 import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
 import { useParams } from 'next/navigation'
-import StatsCard from '@/components/StatsCard'
 
 export default function Class() {
     const [errors, setErrors] = useState([])
@@ -44,15 +43,18 @@ export default function Class() {
             <div className="w-full flex flex-col gap-2">
                 <FormLabel text="در یک نگاه" />
                 <div className="w-full flex">
-                    <StatsCard title="تا پایان دوره">
-                        {enrollment?.status === 'cancelled'
-                            ? 'این دوره کنسل شده است.'
-                            : enrollment?.status === 'expired'
-                              ? 'این دوره به اتمام رسیده است'
-                              : enrollment?.status === 'reserved'
-                                ? 'این دوره هنوز آغاز نشده است.'
-                                : `${enrollment?.remaining_days} روز`}
-                    </StatsCard>
+                    <div className="w-full p-3 border border-dashed desktop:w-[45%] rounded-xl border-textPrimary flex flex-col gap-3">
+                        <h2 className="text-[18px] font-bold">تا پایان دوره</h2>
+                        <p className="text-[20px] font-light">
+                            {enrollment?.status === 'cancelled'
+                                ? 'این دوره کنسل شده است.'
+                                : enrollment?.status === 'expired'
+                                  ? 'این دوره به اتمام رسیده است'
+                                  : enrollment?.status === 'reserved'
+                                    ? 'این دوره هنوز آغاز نشده است.'
+                                    : `${enrollment?.remaining_days} روز`}
+                        </p>
+                    </div>
                 </div>
             </div>
             <div className="w-full flex flex-col gap-2">
