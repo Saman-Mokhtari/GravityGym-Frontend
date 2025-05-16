@@ -49,7 +49,6 @@ export default function Enroll() {
                 setErrors,
             })
         } catch (error) {
-            console.log(errors)
             setErrors(formatPaymentError(error))
         }
     }

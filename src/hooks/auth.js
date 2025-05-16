@@ -8,20 +8,21 @@ import Cookies from 'js-cookie'
 export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     const router = useRouter()
 
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     const {
         data: user,
         error,
         mutate,
     } = useSWR(
-        '/api/user',
+        '/api/[id]',
         () =>
             axios
                 .get('/api/user')
                 .then(res => res.data.data)
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
+    const swrLoading = user === undefined && error === undefined
 
     const { data: users } = useSWR(
         '/api/users',
@@ -43,8 +44,8 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         axios
             .post('/login', props)
             .then(() => {
-                validationSuccess()
                 setLoading(false)
+                validationSuccess()
                 return mutate()
             })
             .catch(error => {
@@ -54,7 +55,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    const otp = async ({ setErrors, ...props }) => {
+    const otp = async ({ setUser, setErrors, ...props }) => {
         setLoading(true)
         await csrf()
 
@@ -66,10 +67,11 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 Cookies.set('Authorization', `Bearer ${res.data.token}`, {
                     expires: 30,
                 })
-                if (res?.data?.user?.role !== 'superUser') {
-                    router.replace('/dashboard/classes')
+                const user = res?.data?.user
+                if (user?.role === 'superUser') {
+                    window.location.href = 'http://localhost:3000/admin'
                 } else {
-                    router.replace('/admin')
+                    window.location.href = 'http://localhost:3000/dashboard'
                 }
                 return mutate()
             })
@@ -167,27 +169,19 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     useEffect(() => {
-        if (loading) return // Prevent running logic before authentication state is determined
+        if (loading || swrLoading) return
 
         if (middleware === 'guest' && redirectIfAuthenticated && user) {
             router.replace(redirectIfAuthenticated)
-        } else if (middleware === 'auth' && !user) {
-            router.replace('/?login=true')
         } else if (middleware === 'auth' && error) {
             logout()
-        } else if (middleware === 'auth' && !user.name) {
+        } else if (middleware === 'auth' && !user?.name) {
             router.replace('/complete-signup')
-        } else if (
-            middleware === 'informationCheck' &&
-            redirectIfAuthenticated &&
-            user.name
-        ) {
-            router.replace(redirectIfAuthenticated)
         }
     }, [user, error, loading])
 
     useEffect(() => {
-        if (user !== undefined) setLoading(false) // Ensure loading state is updated only when user is resolved
+        if (user !== undefined) setLoading(false) // Ensure loading state is updated only when [id] is resolved
     }, [user])
 
     return {
@@ -200,6 +194,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         login,
         logout,
         loading,
+        swrLoading,
     }
 }
 

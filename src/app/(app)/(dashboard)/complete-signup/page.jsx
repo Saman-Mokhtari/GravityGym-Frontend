@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/auth'
 import PrimaryButton from '@/components/PrimaryButton'
 import ErrorLabel from '@/components/ErrorLabel'
 import { useRouter } from 'next/navigation'
+import CreatableSelect from 'react-select/creatable'
+import Link from 'next/link'
 
 export default function CompleteSignup() {
     const router = useRouter()
@@ -18,12 +20,51 @@ export default function CompleteSignup() {
     const [fullName, setFullName] = useState('')
     const [gender, setGender] = useState('')
     const [email, setEmail] = useState('')
+    const [nationalId, setNationalId] = useState('')
     const [errors, setErrors] = useState(false)
+    const [hasInsurance, setHasInsurance] = useState('')
+    const [height, setHeight] = useState('')
+    const [weight, setWeight] = useState('')
+    const [termsAccepted, setTermsAccepted] = useState(false)
     const [informationSuccess, setInformationSuccess] = useState(false)
-    const { completeSignup, loading } = useAuth({
-        middleware: 'informationCheck',
-        redirectIfAuthenticated: '/admin',
-    })
+    const [disabilities, setDisabilities] = useState(null)
+    const [noDisability, setNoDisability] = useState(false)
+
+    const disabilitiesOptions = [
+        { value: 'دیابت', label: 'دیابت' },
+        { value: 'فشار خون بالا', label: 'فشار خون بالا' },
+        {
+            value: 'کم‌کاری یا پرکاری تیروئید',
+            label: 'کم‌کاری یا پرکاری تیروئید',
+        },
+        { value: 'اختلالات هورمونی', label: 'اختلالات هورمونی' },
+        {
+            value: 'نارسایی کلیه یا مشکلات کلیوی',
+            label: 'نارسایی کلیه یا مشکلات کلیوی',
+        },
+        { value: 'آلرژی یا حساسیت شدید', label: 'آلرژی یا حساسیت شدید' },
+        {
+            value: 'مشکلات کبدی یا نارسایی کبد',
+            label: 'مشکلات کبدی یا نارسایی کبد',
+        },
+        { value: 'هپاتیت B یا C', label: 'هپاتیت B یا C' },
+        {
+            value: 'وجود ایمپلنت یا صفحات فلزی در بدن',
+            label: 'وجود ایمپلنت یا صفحات فلزی در بدن',
+        },
+        { value: 'اچ‌آی‌وی (HIV)', label: 'اچ‌آی‌وی (HIV)' },
+        { value: 'سابقه جراحی مهم', label: 'سابقه جراحی مهم' },
+        { value: 'مشکلات تنفسی یا آسم', label: 'مشکلات تنفسی یا آسم' },
+        { value: 'بیماری قلبی یا عروقی', label: 'بیماری قلبی یا عروقی' },
+        { value: 'سابقه سکته قلبی یا مغزی', label: 'سابقه سکته قلبی یا مغزی' },
+        { value: 'مصرف داروهای خاص', label: 'مصرف داروهای خاص' },
+        {
+            value: 'مشکلات ارتوپدی (مفاصل، استخوان‌ها، ستون فقرات)',
+            label: 'مشکلات ارتوپدی (مفاصل، استخوان‌ها، ستون فقرات)',
+        },
+    ]
+
+    const { completeSignup, loading } = useAuth()
 
     useEffect(() => {
         if (informationSuccess) return router.replace('/dashboard')
@@ -37,6 +78,12 @@ export default function CompleteSignup() {
                 gender: gender,
                 birthDate: birthDate,
                 email: email,
+                national_id: nationalId,
+                insurance: hasInsurance,
+                weight: weight,
+                height: height,
+                disabilities: disabilities,
+                terms: termsAccepted,
                 setErrors,
                 setInformationSuccess,
             })
@@ -127,6 +174,209 @@ export default function CompleteSignup() {
                             <ErrorLabel text={errors.birthDate} />
                         )}
                     </div>
+                    <div className="flex flex-col gap-2">
+                        <FormLabel text="شماره ملی" error={errors.national_id}>
+                            <Icons
+                                name="important"
+                                className="text-[8px] text-error absolute top-1 -left-2"
+                            />
+                        </FormLabel>
+                        <input
+                            type="text"
+                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.national_id && 'border border-error text-error placeholder-error'}`}
+                            onChange={e => {
+                                setNationalId(e.target.value)
+                            }}
+                        />
+                        {errors.national_id && (
+                            <ErrorLabel text={errors.national_id} />
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <FormLabel
+                            text="بیماری‌ها یا شرایط خاص"
+                            error={errors.disabilities}>
+                            <Icons
+                                name="important"
+                                className="text-[8px] text-error absolute top-1 -left-2"
+                            />
+                        </FormLabel>
+                        <CreatableSelect
+                            isMulti
+                            name="disabilitiesOptions"
+                            options={disabilitiesOptions}
+                            closeMenuOnSelect={false}
+                            isDisabled={noDisability}
+                            value={disabilities}
+                            placeholder="انتخاب کنید"
+                            formatCreateLabel={inputValue =>
+                                `افزودن بیماری خاص به لیست "${inputValue}"`
+                            }
+                            onChange={selectedOption =>
+                                setDisabilities(selectedOption)
+                            }
+                            onCreateOption={inputValue => {
+                                const newOption = {
+                                    value: inputValue,
+                                    label: inputValue,
+                                }
+                                setDisabilities(prev => [
+                                    ...(prev || []),
+                                    newOption,
+                                ])
+                            }}
+                            className={`w-full ${noDisability && '!cursor-not-allowed'}`}
+                            classNamePrefix="react-select"
+                            styles={{
+                                control: (base, state) => ({
+                                    ...base,
+                                    backgroundColor: `rgb(var(--color-bg-input))`,
+                                    color: `rgb(var(--color-text-primary))`,
+                                    fontSize: '18px',
+                                    borderRadius: '0.375rem',
+                                    border: `1px solid ${state.isFocused ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-primary))'}`,
+                                    boxShadow: 'none',
+                                    outline: 'none', // ✅ این خط رو اضافه کن
+                                    padding: '0.5rem',
+                                    '&:hover': {
+                                        borderColor:
+                                            'rgb(var(--color-text-secondary))',
+                                    },
+                                }),
+                                option: (base, state) => ({
+                                    ...base,
+                                    backgroundColor: state.isFocused
+                                        ? 'rgba(var(--color-text-secondary), 0.2)'
+                                        : 'transparent',
+                                    color: 'rgb(var(--color-text-primary))',
+                                    '&:active': {
+                                        backgroundColor:
+                                            'rgba(var(--color-text-secondary), 0.3)',
+                                    },
+                                }),
+                                multiValue: base => ({
+                                    ...base,
+                                    backgroundColor:
+                                        'rgba(var(--color-text-secondary), 0.15)',
+                                }),
+                                multiValueLabel: base => ({
+                                    ...base,
+                                    color: 'rgb(var(--color-text-primary))',
+                                }),
+                                multiValueRemove: base => ({
+                                    ...base,
+                                    color: 'rgb(var(--color-text-secondary))',
+                                    ':hover': {
+                                        backgroundColor:
+                                            'rgba(var(--color-error), 0.15)',
+                                        color: 'rgb(var(--color-error))',
+                                    },
+                                }),
+                                placeholder: base => ({
+                                    ...base,
+                                    color: 'rgb(var(--color-text-secondary))',
+                                }),
+                                singleValue: base => ({
+                                    ...base,
+                                    color: 'rgb(var(--color-text-primary))',
+                                }),
+                                input: base => ({
+                                    ...base,
+                                    color: 'rgb(var(--color-text-primary))',
+                                }),
+                                menu: base => ({
+                                    ...base,
+                                    backgroundColor:
+                                        'rgb(var(--color-bg-primary))',
+                                    zIndex: 9999,
+                                }),
+                            }}
+                        />
+
+                        <div className="flex items-center gap-2 flex-row-reverse justify-end">
+                            <FormLabel text="مشکل خاصی ندارم" />
+                            <input
+                                type="checkbox"
+                                className="cursor-pointer"
+                                onChange={e => {
+                                    const isChecked = e.target.checked
+                                    setNoDisability(isChecked)
+                                    if (isChecked) {
+                                        setDisabilities([
+                                            {
+                                                value: 'بدون مشکل خاص',
+                                                label: 'بدون مشکل خاص',
+                                            },
+                                        ])
+                                    } else {
+                                        setDisabilities(null) // یا []، بستگی به اعتبارسنجی سمت سرور
+                                    }
+                                }}
+                            />
+                        </div>
+                        {errors.disabilities && (
+                            <ErrorLabel text={errors.disabilities} />
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <FormLabel
+                            text="دارای بیمه‌نامه ورزشی هستید؟"
+                            error={errors.insurance}>
+                            <Icons
+                                name="important"
+                                className="text-[8px] text-error absolute top-1 -left-2"
+                            />
+                        </FormLabel>
+                        <select
+                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors.insurance && 'border border-error text-error placeholder-error'}`}
+                            defaultValue=""
+                            onChange={e => setHasInsurance(e.target.value)}>
+                            <option value="">انتخاب کنید</option>
+                            <option value="yes">بله</option>
+                            <option value="no">خیر</option>
+                        </select>
+                        {errors.insurance && (
+                            <ErrorLabel text={errors.insurance} />
+                        )}
+                    </div>
+                    <div className="w-full flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-2">
+                            <FormLabel text="قد" error={errors.height}>
+                                <Icons
+                                    name="important"
+                                    className="text-[8px] text-error absolute top-1 -left-2"
+                                />
+                            </FormLabel>
+                            <input
+                                type="text"
+                                className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.height && 'border border-error text-error placeholder-error'}`}
+                                onChange={e => {
+                                    setHeight(e.target.value)
+                                }}
+                            />
+                            {errors.height && (
+                                <ErrorLabel text={errors.height} />
+                            )}
+                        </div>
+                        <div className="flex flex-col gap-2">
+                            <FormLabel text="وزن" error={errors.weight}>
+                                <Icons
+                                    name="important"
+                                    className="text-[8px] text-error absolute top-1 -left-2"
+                                />
+                            </FormLabel>
+                            <input
+                                type="text"
+                                className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.weight && 'border border-error text-error placeholder-error'}`}
+                                onChange={e => {
+                                    setWeight(e.target.value)
+                                }}
+                            />
+                            {errors.weight && (
+                                <ErrorLabel text={errors.weight} />
+                            )}
+                        </div>
+                    </div>
 
                     <div className="flex flex-col gap-2">
                         <FormLabel
@@ -139,7 +389,26 @@ export default function CompleteSignup() {
                         />
                         {errors.email && <ErrorLabel text={errors.email} />}
                     </div>
-                    <PrimaryButton loading={loading} className="">
+                    <div className="flex items-center gap-3">
+                        <input
+                            type="checkbox"
+                            className="cursor-pointer"
+                            onChange={e => setTermsAccepted(e.target.checked)}
+                        />
+                        <div className="flex items-center gap-1">
+                            <Link
+                                href="/files/Terms.pdf"
+                                target="_blank"
+                                className="text-blue-600 underline">
+                                شرایط و ضوابط باشگاه
+                            </Link>
+                            <p>را می‌پذیرم.</p>
+                        </div>
+                    </div>
+                    <PrimaryButton
+                        loading={loading}
+                        className=""
+                        disabled={!termsAccepted}>
                         تکمیل ثبت نام
                     </PrimaryButton>
                 </form>

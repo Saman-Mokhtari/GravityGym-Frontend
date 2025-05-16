@@ -4,6 +4,7 @@ import Icons from '@/components/Icons'
 import Link from 'next/link'
 import ClassButton from '@/components/ClassButton'
 import { useEnrollments } from '@/hooks/enrollment'
+import { useEffect } from 'react'
 
 export default function Classes() {
     const { enrollments } = useEnrollments()
@@ -14,6 +15,7 @@ export default function Classes() {
                   enrollment.status === 'reserved',
           )
         : []
+
     const userExpiredCanceledEnrollments = Array.isArray(enrollments)
         ? enrollments.filter(
               enrollment =>
@@ -47,7 +49,7 @@ export default function Classes() {
                             <p>شما در کلاسی ثبت‌نام نکرده‌اید </p>
                         </div>
                         <Link
-                            href="/src/app/(app)/(admin)/admin/classes/enroll"
+                            href="/dashboard/classes/enroll"
                             className="flex items-center gap-2 text-success font-bold">
                             <Icons name="plus" /> <p>ثبت‌نام کلاس جدید</p>
                         </Link>

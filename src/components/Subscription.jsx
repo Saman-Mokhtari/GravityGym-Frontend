@@ -6,10 +6,6 @@ import SubscriptionClassList from '@/components/SubscriptionClassList'
 export default function Subscription() {
     const [selectedClass, setSelectedClass] = useState(null)
 
-    useEffect(() => {
-        console.log(selectedClass)
-    }, [selectedClass])
-
     return (
         <>
             <SubscriptionClassList

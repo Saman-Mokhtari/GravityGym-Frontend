@@ -7,15 +7,13 @@ import FormLabel from '@/components/FormLabel'
 import ResendCode from '@/components/ResendCode'
 import ErrorLabel from '@/components/ErrorLabel'
 import PrimaryButton from '@/components/PrimaryButton'
+import { useRouter } from 'next/navigation'
 
 export default function OtpSection({ codeExpired, phoneNumber }) {
-    const { otp, loading } = useAuth({
-        middleware: 'guest',
-        redirectIfAuthenticated: '/admin',
-    })
-
+    const { otp, loading } = useAuth()
+    const [user, setUser] = useState(null)
     const [errors, setErrors] = useState([])
-
+    const router = useRouter()
     const [part1, setPart1] = useState('')
     const [part2, setPart2] = useState('')
     const [part3, setPart3] = useState('')
@@ -30,9 +28,8 @@ export default function OtpSection({ codeExpired, phoneNumber }) {
 
     useEffect(() => {
         if (errors && Object.keys(errors).length > 0) {
-            console.log(errors)
             if (errors.status === 500) {
-                return codeExpired()
+                codeExpired()
             }
         }
     }, [errors])
@@ -50,7 +47,7 @@ export default function OtpSection({ codeExpired, phoneNumber }) {
         const fullCode = part1 + part2 + part3 + part4 + part5
 
         try {
-            await otp({ code: fullCode, setErrors })
+            await otp({ setUser, setErrors, code: fullCode })
         } catch (error) {
             setErrors(prevErrors => ({
                 ...prevErrors,

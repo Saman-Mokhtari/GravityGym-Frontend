@@ -1,0 +1,122 @@
+import Icons from '@/components/Icons'
+import { useTranslator } from '@/hooks/translator'
+import Link from 'next/link'
+
+import 'tippy.js/dist/tippy.css'
+import 'tippy.js/animations/shift-away-extreme.css'
+import Tippy from '@tippyjs/react'
+import { useState } from 'react'
+import { useEnrollments } from '@/hooks/enrollment'
+import { toast, Toaster } from 'react-hot-toast'
+
+export default function UserSelect({
+    user,
+    canDelete = false,
+    onUserDelete,
+    enroll_id,
+}) {
+    const { persianRoles } = useTranslator()
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
+    const { cancel } = useEnrollments()
+    const [errors, setErrors] = useState(null)
+
+    const handleDelete = async () => {
+        setIsConfirmingDelete(false)
+        try {
+            await cancel({
+                enroll_id: enroll_id,
+                setErrors,
+            })
+            if (onUserDelete) onUserDelete(user?.id)
+            toast.success('کاربر با موفقیت حذف شد.')
+        } catch (error) {
+            setErrors(error)
+        }
+    }
+
+    return (
+        <div className="w-full flex items-center justify-between bg-bgInput py-3 px-4 rounded-md mt-2">
+            <Toaster />
+            <div className="flex items-center gap-3">
+                <div className="aspect-square w-[3.5rem] border border-textSecondary rounded-full items-center justify-center relative">
+                    {/*<Image*/}
+                    {/*    src=""*/}
+                    {/*    alt="pfp"*/}
+                    {/*    className="aspect-square w-[4rem] border border-textSecondary rounded-full"*/}
+                    {/*/>*/}
+                    <Icons
+                        name="user"
+                        className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2"
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <h2 className="text-[18px] font-bold">{user?.name}</h2>
+                    <p className="font-light text-[16px]">
+                        {persianRoles[user?.role]}
+                    </p>
+                </div>
+            </div>
+            <div className="flex items-center gap-3">
+                <Tippy
+                    content="مدیریت کاربر"
+                    className="font-font font-medium text-[18px] p-1 !rounded-md  !bg-textPrimary">
+                    <Link
+                        href={`/admin/users/${user?.id}`}
+                        className="group p-1">
+                        <Icons
+                            name="show"
+                            className="text-[20px] group-hover:font-black"
+                        />
+                    </Link>
+                </Tippy>
+                {canDelete && (
+                    <Tippy
+                        visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
+                        trigger={
+                            isConfirmingDelete ? 'manual' : 'mouseenter focus'
+                        } // در حالت false عادی باشه
+                        onClickOutside={() => setIsConfirmingDelete(false)}
+                        interactive={true}
+                        placement="top"
+                        theme="light-border"
+                        className="!bg-error"
+                        arrow={false}
+                        content={
+                            isConfirmingDelete ? (
+                                <div className="text-center p-2">
+                                    <p className="text-sm mb-2">
+                                        آیا مطمئن هستید؟
+                                    </p>
+                                    <div className="flex justify-center gap-3">
+                                        <button
+                                            onClick={handleDelete}
+                                            className="text-white bg-red-800 hover:bg-red-900 px-3 py-1 rounded text-sm">
+                                            حذف
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                setIsConfirmingDelete(false)
+                                            }
+                                            className="text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
+                                            لغو
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                'حذف کاربر از دوره'
+                            )
+                        }>
+                        <div
+                            onClick={() => setIsConfirmingDelete(true)}
+                            className="group p-1 cursor-pointer">
+                            <Icons
+                                name="trash"
+                                className="text-[20px] text-error group-hover:font-black"
+                            />
+                        </div>
+                    </Tippy>
+                )}
+            </div>
+        </div>
+    )
+}

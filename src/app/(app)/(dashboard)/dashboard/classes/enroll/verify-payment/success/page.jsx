@@ -8,7 +8,6 @@ export default async function PaymentStatus({ searchParams }) {
     const ref_id = searchParam.ref_id
     const message = searchParam.message
 
-    console.log(status, ref_id)
     const success = status === 'success'
     return (
         <div className="w-full flex justify-center items-center mt-10">

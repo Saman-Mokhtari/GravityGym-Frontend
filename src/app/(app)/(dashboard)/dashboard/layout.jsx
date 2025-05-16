@@ -7,11 +7,19 @@ import FormLabel from '@/components/FormLabel'
 import BottomNavbar from '@/components/BottomNavbar'
 import DashboardNavigation from '@/components/DashboardNavigation'
 import Link from 'next/link'
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 
 export default function Layout({ children }) {
     const { isDesktop } = useWindowSize()
     const pathName = usePathname()
     const { user, logout } = useAuth()
+    const router = useRouter()
+    useEffect(() => {
+        if (user) {
+            if (!user?.name) router.replace('/complete-signup')
+        }
+    }, [user])
 
     if (!isDesktop) {
         return (
@@ -81,7 +89,7 @@ function Sidebar({ user, logout, pathName }) {
                             className="text-[20px] text-textSecondary"
                         />
                     </div>
-                    <h2 className="font-bold text-[18px]">{user.name}</h2>
+                    <h2 className="font-bold text-[18px]">{user?.name}</h2>
                 </div>
 
                 <div

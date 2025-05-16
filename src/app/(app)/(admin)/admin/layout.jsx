@@ -4,9 +4,9 @@ import { usePathname } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
-import BottomNavbar from '@/components/BottomNavbar'
 import DashboardNavigation from '@/components/DashboardNavigation'
 import Link from 'next/link'
+import PageTitle from '@/components/PageTitle'
 
 export default function Layout({ children }) {
     const { isDesktop } = useWindowSize()
@@ -25,7 +25,6 @@ export default function Layout({ children }) {
                     }>
                     {children}
                 </div>
-                <BottomNavbar />
             </>
         )
     }
@@ -43,11 +42,10 @@ function Sidebar({ user, logout, pathName }) {
     return (
         <aside className="flex flex-col h-full w-[16vw] p-3 justify-between">
             <div>
-                <h2 className="text-[25px] font-bold">
-                    سلام
-                    <br />
-                    {user?.name?.split(' ')[0]} عزیز!
-                </h2>
+                <PageTitle
+                    firstLine="سلام"
+                    secondLine={`${user?.name?.split(' ')[0]} عزیز!`}
+                />
 
                 <div className="mt-8 flex flex-col gap-2">
                     <FormLabel text="مدیریت" />
@@ -69,6 +67,17 @@ function Sidebar({ user, logout, pathName }) {
                                 : 'dumbleLight'
                         }
                         label="مدیریت کلاس‌ها"
+                    />
+                    <SidebarLink
+                        className=""
+                        href="/admin/users"
+                        active={pathName.startsWith('/admin/users')}
+                        icon={
+                            pathName.startsWith('/admin/users')
+                                ? 'users'
+                                : 'usersLight'
+                        }
+                        label="مدیریت اعضای باشگاه"
                     />
                 </div>
             </div>
