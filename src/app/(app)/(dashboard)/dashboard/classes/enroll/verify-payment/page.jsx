@@ -8,9 +8,9 @@ export default function VerifyPayment() {
     const searchParams = useSearchParams()
     const Authority = searchParams.get('Authority')
 
-    const { loading, verify } = usePayment()
+    const { verify } = usePayment()
 
-    const [errors, setErrors] = useState(null)
+    const [, setErrors] = useState(null)
 
     useEffect(() => {
         if (!Authority) return

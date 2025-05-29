@@ -12,30 +12,36 @@ import PrimaryButton from '@/components/PrimaryButton'
 import { DatePicker } from 'zaman'
 import jalaali from 'jalaali-js'
 import { toast, Toaster } from 'react-hot-toast'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import Icons from '@/components/Icons'
+import Tippy from '@tippyjs/react'
 
 export default function Edit() {
-    const [errors, setErrors] = useState(null)
+    const [, setErrors] = useState(null)
     const [loading, setLoading] = useState(false)
-    const [isClearable, setIsClearable] = useState(false)
-    const [isSearchable, setIsSearchable] = useState(true)
-    const [isDisabled, setIsDisabled] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
-    const [isRtl, setIsRtl] = useState(true)
+    const [isClearable] = useState(false)
+    const [isDisabled] = useState(false)
+    const [isLoading] = useState(false)
+    const [isRtl] = useState(true)
     const [enrollment, setEnrollment] = useState(null)
     const params = useParams()
+    const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
     const { enrollment: fetchErnolllment, update } = useEnrollments()
     const { active } = useSubscription()
     const { instructors } = useUser()
-    const [filteredInstructors, setFilteredInstructors] = useState(null)
+    const [, setFilteredInstructors] = useState(null)
     const [selectedSub, setSelectedSub] = useState(null)
-    const [selectedInstructor, setSelectedInstructor] = useState(null)
+    const [, setSelectedInstructor] = useState(null)
     const [startDate, setStartDate] = useState(null)
-    const [status, setStatus] = useState(null)
-    const { persianDays, persianStatuses } = useTranslator()
+    const [cancelled, setCancelled] = useState(false)
+    const { persianDays } = useTranslator()
     const [isSucceeded, setIsSucceeded] = useState(false)
     const router = useRouter()
+    const { setTitle } = useNavigationTitle()
+    const { cancel } = useEnrollments()
     useEffect(() => {
         if (instructors && selectedSub) {
+            setTitle(`ویرایش دوره کاربر - ${selectedSub?.className}`)
             const filtered = instructors.filter(instructor =>
                 instructor.subscriptions?.some(
                     sub => sub.class?.id === selectedSub.value,
@@ -97,11 +103,8 @@ export default function Edit() {
                 const date = new Date(gy, gm - 1, gd)
                 setStartDate(date)
             }
-            if (enrollment?.status) {
-                setStatus({
-                    value: enrollment?.status,
-                    label: persianStatuses[enrollment?.status],
-                })
+            if (enrollment?.status === 'cancelled') {
+                setCancelled(true)
             }
         }
     }, [enrollment])
@@ -130,6 +133,7 @@ export default function Edit() {
 
     const subscriptionOptions = active?.map(sub => ({
         value: sub?.id,
+        label: `${sub?.class?.name} - ${sub?.instructor}`, // فقط برای سرچ
         className: sub?.class?.name,
         classDays: sub?.class_days,
         startTime: sub?.start_time,
@@ -139,26 +143,24 @@ export default function Edit() {
         endTime: sub?.end_time,
     }))
 
-    const statuses = [
-        {
-            value: 'expired',
-            label: 'منقضی شده',
-        },
-        {
-            value: 'reserved',
-            label: 'رزرو',
-        },
-        {
-            value: 'active',
-            label: 'فعال',
-        },
-        {
-            value: 'cancelled',
-            label: 'کنسل شده',
-        },
-    ]
+    const handleDelete = async () => {
+        setIsConfirmingDelete(false)
+        try {
+            await cancel({
+                sub_id: enrollment?.subscription?.id,
+                enroll_id: enrollment?.id,
+                setErrors,
+            })
+            toast.success('کاربر با موفقیت حذف شد.')
+            setTimeout(() => {
+                router.replace(`/admin/users/${params?.userId}`)
+            }, 2000)
+        } catch (error) {
+            setErrors(error)
+        }
+    }
     const notifySuccess = () =>
-        toast.success('کاربر ویرایش گردید', { duration: 2000 })
+        toast.success('ثبت نام کاربر ویرایش گردید', { duration: 2000 })
     const formSubmitHandler = async e => {
         e.preventDefault()
         try {
@@ -169,7 +171,7 @@ export default function Edit() {
                 user_id: params?.userId,
                 subscription_id: selectedSub?.value,
                 start_date: startDate,
-                status: status?.value,
+                cancelled: cancelled,
                 setIsSucceeded,
             })
         } catch (e) {
@@ -199,8 +201,8 @@ export default function Edit() {
                         isLoading={isLoading}
                         isClearable={isClearable}
                         isRtl={isRtl}
-                        isSearchable={isSearchable}
-                        name="color"
+                        isSearchable={true}
+                        name="subscription"
                         options={subscriptionOptions}
                         menuPosition="fixed"
                         menuPortalTarget={
@@ -212,10 +214,27 @@ export default function Edit() {
                                 zIndex: 9999,
                                 direction: 'rtl',
                             }),
+                            option: (base, state) => ({
+                                ...base,
+                                backgroundColor: state.isSelected
+                                    ? 'rgb(var(--color-border))'
+                                    : state.isFocused
+                                      ? 'rgba(var(--color-text-secondary), 0.15)'
+                                      : 'transparent',
+                                color: state.isSelected
+                                    ? 'black'
+                                    : 'rgb(var(--color-text-primary))',
+                                cursor: 'pointer',
+                            }),
+                        }}
+                        filterOption={(option, inputValue) => {
+                            const haystack =
+                                `${option.data.className} ${option.data.instructor}`.toLowerCase()
+                            return haystack.includes(inputValue.toLowerCase())
                         }}
                         getOptionLabel={e => (
                             <div className="flex flex-col w-full gap-1 p-2 font-font">
-                                <span className="flex font-medium font-font">
+                                <span className="flex font-medium">
                                     {e.className}
                                 </span>
                                 <span className="flex text-textSecondary text-[16px]">
@@ -228,58 +247,96 @@ export default function Edit() {
                                     ساعت: از {e.startTime} تا {e.endTime}
                                 </span>
                                 <span className="flex text-gray-500 text-[16px]">
-                                    مدت دوره: {e.durationValue}{' '}
-                                    {e.durationUnit}{' '}
+                                    مدت دوره: {e.durationValue} {e.durationUnit}
                                 </span>
                                 <span className="flex text-gray-500 text-[16px]">
-                                    مربی دوره: {e.instructor}{' '}
+                                    مربی دوره: {e.instructor}
                                 </span>
                             </div>
                         )}
                     />
                 </div>
                 <div className="w-full flex flex-col gap-2">
+                    <label
+                        htmlFor="cancel"
+                        onChange={e => {
+                            setCancelled(e.target.checked)
+                        }}
+                        className="flex w-fit items-center gap-2 flex-row-reverse justify-end cursor-pointer hover:text-textSecondary transition-all p-2">
+                        <p>کنسل کردن دوره</p>
+                        <input
+                            type="checkbox"
+                            id="cancel"
+                            defaultChecked={cancelled || false}
+                        />
+                    </label>
+                </div>
+
+                <div className="w-full flex flex-col gap-2">
                     <FormLabel text="تاریخ شروع ثبت نام" />
                     <DatePicker
                         onChange={handleDateChange}
                         defaultValue={startDate}
                         round="thin"
-                        position="center"
-                        className="!font-font !rounded-xl"
+                        position="left" // اگر نبود، حذف کن
+                        className="!font-font !rounded-xl "
                         inputClass="w-full desktop:w-1/3 border border-textSecondary/40 py-3 rounded-sm"
                     />
                 </div>
-                <div className="w-full flex flex-col gap-2">
-                    <FormLabel text="وضعیت دوره" />
-                    <Select
-                        className="basic-single"
-                        classNamePrefix="select"
-                        value={status}
-                        onChange={setStatus}
-                        isDisabled={isDisabled}
-                        isLoading={isLoading}
-                        isClearable={isClearable}
-                        isRtl={isRtl}
-                        isSearchable={isSearchable}
-                        name="color"
-                        options={statuses}
-                        menuPosition="fixed"
-                        menuPortalTarget={
-                            typeof window !== 'undefined' ? document.body : null
-                        }
-                        styles={{
-                            menuPortal: base => ({
-                                ...base,
-                                zIndex: 9999,
-                                direction: 'rtl',
-                            }),
-                            control: base => ({
-                                ...base,
-                                paddingTop: '0.45rem',
-                                paddingBottom: '0.45rem',
-                            }),
-                        }}
-                    />
+                <div className="w-fit flex flex-col gap-2">
+                    <Tippy
+                        asChild
+                        visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
+                        trigger={
+                            isConfirmingDelete ? 'manual' : 'mouseenter focus'
+                        } // در حالت false عادی باشه
+                        onClickOutside={() => setIsConfirmingDelete(false)}
+                        interactive={true}
+                        placement="top"
+                        theme="light-border"
+                        className=""
+                        arrow={false}
+                        content={
+                            isConfirmingDelete ? (
+                                <div className="text-center p-2">
+                                    <p className="text-sm mb-2">
+                                        آیا مطمئن هستید؟
+                                    </p>
+                                    <div className="flex justify-center gap-3">
+                                        <button
+                                            onClick={() => {
+                                                handleDelete()
+                                            }}
+                                            className="text-white bg-red-800 hover:bg-red-900 px-3 py-1 rounded text-sm">
+                                            حذف
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                setIsConfirmingDelete(false)
+                                            }
+                                            className="text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
+                                            لغو
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                'حذف کاربر از دوره'
+                            )
+                        }>
+                        <div
+                            onClick={() => {
+                                setIsConfirmingDelete(true)
+                            }}
+                            className="group p-1 cursor-pointer">
+                            <div className="px-4 py-2 flex items-center group gap-3 flex-row-reverse text-error border border-error rounded-md hover:bg-error hover:text-bgPrimary transition-all">
+                                <p>حذف کاربر از این دوره</p>
+                                <Icons
+                                    name="trash"
+                                    className="text-[20px] text-error group-hover:font-black group-hover:text-bgPrimary"
+                                />
+                            </div>
+                        </div>
+                    </Tippy>
                 </div>
                 <div className="w-full flex items-center justify-center">
                     <div className="w-[98%]">

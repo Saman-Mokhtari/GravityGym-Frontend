@@ -6,9 +6,11 @@ import yoga from '/public/images/yoga.jpg'
 import fitness from '/public/images/fitness.jpg'
 import Subscription from '@/components/Subscription'
 import Footer from '@/components/Footer'
+import MainSlider from '@/components/MainSlider'
+import React from 'react'
 
 export const metadata = {
-    title: 'Laravel',
+    title: 'Gravity Gym',
 }
 
 const Home = () => {
@@ -17,6 +19,9 @@ const Home = () => {
             dir="rtl"
             className="w-full flex flex-col font-font bg-bgTertiary ">
             <Header />
+
+            <MainSlider />
+
             <div
                 id="suggestions"
                 className="flex flex-col items-center py-8 gap-4 container ">
@@ -24,23 +29,6 @@ const Home = () => {
                     ما برای همه پیشنهادی داریم
                 </h2>
                 <Suggestions />
-                <div className="flex flex-col gap-40 w-full mt-20 items-center">
-                    <ClassCard
-                        text="کلاس‌های گروهی کلیستنیکس"
-                        image={calis}
-                        alt="تصویر کلیستنیکس"
-                    />
-                    <ClassCard
-                        text="کلاس‌های گروهی کلیستنیکس"
-                        image={yoga}
-                        alt="تصویر کلیستنیکس"
-                    />
-                    <ClassCard
-                        text="کلاس‌های گروهی کلیستنیکس"
-                        image={fitness}
-                        alt="تصویر کلیستنیکس"
-                    />
-                </div>
             </div>
             <div
                 id="subscriptions"

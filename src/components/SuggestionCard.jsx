@@ -10,7 +10,7 @@ export default function SuggestionCard({ text, image, alt }) {
                 style={{ objectFit: 'cover' }}
                 className="absolute top-0 -z-20 "
             />
-            <div className="absolute  -z-10 top-0 h-full w-full bg-[#5F7252]/70"></div>
+            <div className="absolute  -z-10 top-0 h-full w-full bg-[#5F7252]/70" />
             <h2 className="font-bold text-[25px] text-bgPrimary">{text}</h2>
         </div>
     )

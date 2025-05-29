@@ -6,44 +6,23 @@ import 'tippy.js/dist/tippy.css'
 import 'tippy.js/animations/shift-away-extreme.css'
 import Tippy from '@tippyjs/react'
 import { useState } from 'react'
-import { useEnrollments } from '@/hooks/enrollment'
-import { toast, Toaster } from 'react-hot-toast'
+import { Toaster } from 'react-hot-toast'
 
 export default function UserSelect({
     user,
     canDelete = false,
-    onUserDelete,
+    handleDelete,
     enroll_id,
+    sub_id,
 }) {
     const { persianRoles } = useTranslator()
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
-    const { cancel } = useEnrollments()
-    const [errors, setErrors] = useState(null)
-
-    const handleDelete = async () => {
-        setIsConfirmingDelete(false)
-        try {
-            await cancel({
-                enroll_id: enroll_id,
-                setErrors,
-            })
-            if (onUserDelete) onUserDelete(user?.id)
-            toast.success('کاربر با موفقیت حذف شد.')
-        } catch (error) {
-            setErrors(error)
-        }
-    }
 
     return (
         <div className="w-full flex items-center justify-between bg-bgInput py-3 px-4 rounded-md mt-2">
             <Toaster />
             <div className="flex items-center gap-3">
                 <div className="aspect-square w-[3.5rem] border border-textSecondary rounded-full items-center justify-center relative">
-                    {/*<Image*/}
-                    {/*    src=""*/}
-                    {/*    alt="pfp"*/}
-                    {/*    className="aspect-square w-[4rem] border border-textSecondary rounded-full"*/}
-                    {/*/>*/}
                     <Icons
                         name="user"
                         className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2"
@@ -71,6 +50,7 @@ export default function UserSelect({
                 </Tippy>
                 {canDelete && (
                     <Tippy
+                        asChild
                         visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
                         trigger={
                             isConfirmingDelete ? 'manual' : 'mouseenter focus'
@@ -89,7 +69,13 @@ export default function UserSelect({
                                     </p>
                                     <div className="flex justify-center gap-3">
                                         <button
-                                            onClick={handleDelete}
+                                            onClick={() => {
+                                                handleDelete(
+                                                    user,
+                                                    enroll_id,
+                                                    sub_id,
+                                                )
+                                            }}
                                             className="text-white bg-red-800 hover:bg-red-900 px-3 py-1 rounded text-sm">
                                             حذف
                                         </button>

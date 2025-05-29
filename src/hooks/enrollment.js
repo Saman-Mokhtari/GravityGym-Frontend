@@ -1,13 +1,11 @@
 'use client'
 import axios from '@/lib/axios'
-import useSWR from 'swr'
-import { useRouter } from 'next/navigation'
+import useSWR, { mutate } from 'swr'
 import { useState } from 'react'
 
 export const useEnrollments = () => {
     const [loading, setLoading] = useState(false)
 
-    const router = useRouter()
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
     const { data: enrollments } = useSWR(
@@ -54,7 +52,10 @@ export const useEnrollments = () => {
                 setLoading(false)
                 return setIsSucceeded(true)
             })
-            .catch(e => setErrors(e))
+            .catch(e => {
+                setLoading(false)
+                setErrors(e)
+            })
     }
 
     const { data: active } = useSWR(
@@ -67,23 +68,34 @@ export const useEnrollments = () => {
     )
 
     const cancel = async ({ setErrors, ...props }) => {
+        setLoading(true)
         setErrors([])
         await csrf()
         const { enroll_id } = props
-        axios
+        await axios
             .post(`/api/enrollment/${enroll_id}/cancel`)
-            .then()
-            .catch(error => setErrors(error))
+            .then(() => {
+                mutate('/api/users')
+                mutate(`/api/subscription/${props?.sub_id}`)
+                setLoading(false)
+            })
+            .catch(error => {
+                setLoading(false)
+                setErrors(error)
+            })
     }
 
     const blkCancel = async ({ userDeletionToast, setErrors, ...props }) => {
         setLoading(true)
         setErrors([])
         await csrf()
+
         axios
             .post(`/api/enrollments/bulk-cancel`, props)
-            .then(res => {
+            .then(() => {
                 userDeletionToast()
+                mutate('/api/users')
+                mutate(`/api/subscription/${props?.sub_id}`)
                 setLoading(false)
             })
             .catch(error => {
@@ -99,9 +111,11 @@ export const useEnrollments = () => {
 
         axios
             .post('/api/enrollment/create', props)
-            .then(res => {
+            .then(() => {
                 setLoading(false)
                 userAddedToast()
+                mutate(`/api/subscription/${props?.sub_id}`)
+                mutate('/api/users')
             })
             .catch(error => {
                 setLoading(false)
@@ -117,5 +131,6 @@ export const useEnrollments = () => {
         cancel,
         blkCancel,
         create,
+        loading,
     }
 }

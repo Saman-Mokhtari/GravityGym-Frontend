@@ -4,13 +4,12 @@ import Icons from '@/components/Icons'
 import ErrorLabel from '@/components/ErrorLabel'
 import { useEffect, useState } from 'react'
 import Select from 'react-select'
-import { useUser } from '@/hooks/user'
-import { DatePicker, TimePicker } from 'zaman'
 import SubscriptionForm from '@/components/SubscriptionForm'
 import PrimaryButton from '@/components/PrimaryButton'
 import { useClass } from '@/hooks/class'
 import { toast, Toaster } from 'react-hot-toast'
 import { useRouter } from 'next/navigation'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
     const [errors, setErrors] = useState(null)
@@ -20,6 +19,7 @@ export default function Main() {
     const { create, loading } = useClass()
     const [isSucceeded, setisSucceeded] = useState(false)
     const router = useRouter()
+    const { setTitle } = useNavigationTitle()
     const status = [
         {
             value: 1,
@@ -30,6 +30,10 @@ export default function Main() {
             label: 'غیرفعال',
         },
     ]
+
+    useEffect(() => {
+        setTitle('ایجاد کلاس جدید')
+    }, [])
 
     const handleCreateClass = e => {
         e.preventDefault()
@@ -115,6 +119,7 @@ export default function Main() {
                                 <Select
                                     className="w-full"
                                     isClearable
+                                    isSearchable={false}
                                     placeholder="وضعیت"
                                     menuPlacement="bottom"
                                     menuPosition="absolute"

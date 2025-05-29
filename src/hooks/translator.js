@@ -12,7 +12,7 @@ export const useTranslator = () => {
     }
     const subscriptionStatus = {
         1: 'فعال',
-        2: 'غیرفعال',
+        0: 'غیرفعال',
     }
     const persianStatuses = {
         expired: 'منقضی شده',
@@ -26,10 +26,15 @@ export const useTranslator = () => {
         admin: 'ادمین',
         superUser: 'سوپر ادمین',
     }
+    const persianInsurance = {
+        yes: 'دارد',
+        no: 'ندارد',
+    }
     return {
         persianDays,
         persianRoles,
         persianStatuses,
         subscriptionStatus,
+        persianInsurance,
     }
 }

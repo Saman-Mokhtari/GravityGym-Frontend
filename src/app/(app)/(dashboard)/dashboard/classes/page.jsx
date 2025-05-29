@@ -4,10 +4,16 @@ import Icons from '@/components/Icons'
 import Link from 'next/link'
 import ClassButton from '@/components/ClassButton'
 import { useEnrollments } from '@/hooks/enrollment'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 import { useEffect } from 'react'
 
 export default function Classes() {
     const { enrollments } = useEnrollments()
+    const { setTitle } = useNavigationTitle()
+
+    useEffect(() => {
+        setTitle('کلاس‌های من')
+    }, [])
     const userActiveReservedEnrollments = Array.isArray(enrollments)
         ? enrollments.filter(
               enrollment =>
@@ -27,10 +33,7 @@ export default function Classes() {
         <>
             <div className="flex flex-col gap-4 desktop:items-center">
                 <div className="w-full text-start">
-                    <FormLabel
-                        text="کلاس‌های ثبت‌نام شده شما"
-                        className="w-full text-start border-green-50"
-                    />
+                    <FormLabel text="اشتراک‌های فعال و رزرو شده" />
                 </div>
                 {Array.isArray(userActiveReservedEnrollments) &&
                 userActiveReservedEnrollments.length > 0 ? (
@@ -58,7 +61,7 @@ export default function Classes() {
             </div>
             <div className="flex flex-col gap-4 mt-10 desktop:w-full desktop:items-center">
                 <div className="w-full text-start">
-                    <FormLabel text="کلاس‌های ثبت‌نام شده شما" />
+                    <FormLabel text="اشتراک‌های تمام و کنسل شده" />
                 </div>
                 {/*<ClassButton />*/}
                 {Array.isArray(userExpiredCanceledEnrollments) &&

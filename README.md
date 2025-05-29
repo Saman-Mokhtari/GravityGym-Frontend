@@ -30,7 +30,8 @@ php artisan migrate
 ```
 
 Next, ensure that your application's `APP_URL` and `FRONTEND_URL` environment variables are set to
-`http://localhost:8000` and `http://localhost:3000`, respectively.
+`http://
+localhost:8000` and `http://localhost:3000`, respectively.
 
 After defining the appropriate environment variables, you may serve the Laravel application using the `serve` Artisan
 command:
@@ -78,7 +79,8 @@ export default ExamplePage
 ```
 
 > Note: You will need to
-> use [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) (
+>
+use [optional chaining](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Optional_chaining) (
 `user?.name` instead of `user.name`) when accessing properties on the user object to account for Next.js's initial
 > server-side render.
 

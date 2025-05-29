@@ -17,7 +17,6 @@ export default function LoginRegister() {
     const [phoneNumber, setPhoneNumber] = useState(null)
     const [error, setError] = useState(false)
     const { loginExpired } = useAuth()
-
     const validationSuccess = () => {
         setCodePhase(true)
     }
@@ -78,10 +77,10 @@ export default function LoginRegister() {
                 </Drawer.Trigger>
 
                 <Drawer.Portal>
-                    <Drawer.Overlay className="fixed inset-0 bg-black/40 z-40" />
+                    <Drawer.Overlay className="fixed inset-0 bg-black/40 z-40 " />
                     <Drawer.Title className="hidden" />
 
-                    <Drawer.Content className="bg-white p-4 z-50 flex flex-col font-font gap-6 fixed bottom-0 left-0 right-0 max-h-[100vh] rounded-t-[10px]">
+                    <Drawer.Content className="bg-white p-4 z-50 flex flex-col font-font gap-6 fixed bottom-0 left-0 right-0 h-[40vh] rounded-t-[10px]">
                         <Drawer.Handle />
 
                         {/* Make Table Scrollable on X-Axis */}

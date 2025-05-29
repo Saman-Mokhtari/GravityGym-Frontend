@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import SubscriptionCard from '@/components/SubscriptionCard'
 import SubscriptionClassList from '@/components/SubscriptionClassList'
 
@@ -15,13 +15,8 @@ export default function Subscription() {
             <div className="grid grid-cols-1 w-full desktop:grid-cols-3 place-items-center gap-8">
                 {selectedClass ? (
                     <>
-                        {selectedClass.subscriptions.map(item => (
-                            <SubscriptionCard
-                                key={item.id}
-                                sessions={item.session_count}
-                                period="ماهانه"
-                                price={item.price}
-                            />
+                        {selectedClass.subscriptions.map(sub => (
+                            <SubscriptionCard key={sub.id} sub={sub} />
                         ))}
                     </>
                 ) : null}

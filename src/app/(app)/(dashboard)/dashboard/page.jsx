@@ -1,5 +1,4 @@
 'use client'
-import { useAuth } from '@/hooks/auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -8,7 +7,6 @@ import { useEffect } from 'react'
 // }
 
 const Dashboard = () => {
-    const { logout } = useAuth()
     const router = useRouter()
     useEffect(() => {
         router.replace('/dashboard/classes')

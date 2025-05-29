@@ -9,35 +9,103 @@ import { usePayment } from '@/hooks/payment'
 import zarinpal from '/public/images/zarinpal.svg'
 import ClassSelector from '@/components/ClassSelector'
 import { useEnrollments } from '@/hooks/enrollment'
+import { useSearchParams } from 'next/navigation'
+import { useSubscription } from '@/hooks/subscription'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import { useTranslator } from '@/hooks/translator'
 
 export default function Enroll() {
     const [drawerIsOpen, setDrawerIsOpen] = useState(false)
     const [openModal, setOpenModal] = useState(false)
     const [selectedSub, setSelectedSub] = useState(null)
-    const [errors, setErrors] = useState([])
+    const [, setErrors] = useState([])
     const { isDesktop } = useWindowSize()
     const { active: activeClasses } = useClass()
+    const { setTitle } = useNavigationTitle()
+    const [timeConflict, setTimeConflict] = useState(false)
+    const [conflictedEnrollment, setConflictedEnrollment] = useState(null)
     const [interferedEnrollment, setInterferedEnrollment] = useState(false)
     const [limit, setLimit] = useState(false)
     const { active: activeEnrollments } = useEnrollments()
     const { pay, loading } = usePayment()
+    const searchParams = useSearchParams()
+    const subId = searchParams.get('sub')
+    const { subscription } = useSubscription()
+    const { data: fetchedSub } = subscription(subId)
+    const { persianDays } = useTranslator()
     useEffect(() => {
-        if (selectedSub && activeEnrollments) {
-            const activeEnrollment = activeEnrollments.filter(enrollment => {
-                return (
-                    enrollment.subscription.id === selectedSub.subscription.id
-                )
+        if (subId) {
+            setSelectedSub({
+                name: fetchedSub?.class?.name,
+                subscription: {
+                    day_type: fetchedSub?.day_type,
+                    start_time: fetchedSub?.start_time,
+                    end_time: fetchedSub?.end_time,
+                    instructor: fetchedSub?.instructor, // ✅ اصلاح شد
+                    sub_name: fetchedSub?.sub_name,
+                    duration_value: fetchedSub?.duration_value,
+                    duration_unit: fetchedSub?.duration_unit,
+                    id: fetchedSub?.id,
+                    class_days: fetchedSub?.class_days,
+                    session_count: fetchedSub?.session_count,
+                    price: fetchedSub?.price,
+                    description: `${fetchedSub?.session_count} جلسه در ماه (${fetchedSub?.session_count / 4} جلسه در هفته)`,
+                },
             })
-            const hasActiveEnrollment = !!activeEnrollment
-            if (activeEnrollment.length === 1) {
-                setInterferedEnrollment(hasActiveEnrollment)
-            } else if (activeEnrollment.length > 1) {
-                setLimit(true)
-            }
         }
-    }, [selectedSub])
+    }, [subId, fetchedSub])
 
-    // Handles payment request to the server
+    useEffect(() => {
+        setTitle('ثبت‌نام کلاس جدید')
+    }, [])
+    const parseTime = t => {
+        const [h, m] = t.split(':').map(Number)
+        return h * 60 + m
+    }
+    useEffect(() => {
+        if (!selectedSub || !activeEnrollments) return
+
+        setInterferedEnrollment(false)
+        setLimit(false)
+        setTimeConflict(false)
+        setConflictedEnrollment(null)
+
+        const selected = selectedSub.subscription
+        const selDays = selected.class_days
+        const selStart = parseTime(selected.start_time)
+        const selEnd = parseTime(selected.end_time)
+
+        // بررسی اینکه آیا کاربر قبلاً توی این کلاس ثبت‌نام کرده یا نه
+        const sameSubEnrollments = activeEnrollments.filter(
+            enr => enr.subscription.id === selected.id,
+        )
+
+        if (sameSubEnrollments.length === 1) {
+            setInterferedEnrollment(true)
+        } else if (sameSubEnrollments.length > 1) {
+            setLimit(true)
+        }
+
+        // بررسی تداخل زمانی با همه کلاس‌ها (غیر از همین کلاس)
+        const hasTimeConflict = activeEnrollments.some(enr => {
+            const sub = enr.subscription
+            if (sub.id === selected.id) return false
+            const hasSharedDay = sub.class_days.some(day =>
+                selDays.includes(day),
+            )
+            if (!hasSharedDay) return false
+            const enrStart = parseTime(sub.start_time)
+            const enrEnd = parseTime(sub.end_time)
+
+            // شرط تداخل زمانی
+            const overlap = !(selEnd <= enrStart || selStart >= enrEnd)
+            if (overlap) setConflictedEnrollment(enr)
+            return overlap
+        })
+
+        setTimeConflict(hasTimeConflict)
+    }, [selectedSub, activeEnrollments])
+
     const handlePay = async event => {
         event.preventDefault()
         if (loading || !selectedSub) return
@@ -94,12 +162,21 @@ export default function Enroll() {
                             </p>
                         </div>
                     )}
-                    {!limit && (
+                    {timeConflict && (
+                        <div className="w-full flex items-center text-error font-bold leading-10">
+                            <p>
+                                {`کلاس انتخابی شما با اشتراک ${conflictedEnrollment?.subscription?.sub_name} کلاس ${conflictedEnrollment?.subscription?.class?.name}`}{' '}
+                                تداخل زمانی دارند!{' '}
+                            </p>
+                        </div>
+                    )}
+                    {!limit && !timeConflict && (
                         <SubscriptionSummary
                             selectedSub={selectedSub}
                             isDesktop={isDesktop}
                             loading={loading}
                             handlePay={handlePay}
+                            persianDays={persianDays}
                             limit={limit}
                         />
                     )}
@@ -147,26 +224,38 @@ const SubscriptionSummary = ({
     loading,
     handlePay,
     limit,
+    persianDays,
 }) => (
-    <div className="flex flex-col gap-6 desktop:gap-4 desktop:justify-center desktop:p-4 desktop:rounded-xl">
-        <SummarySection icon="dumbleSolid" label="کلاس انتخاب شده">
-            {selectedSub.name}
-        </SummarySection>
-        <SummarySection icon="clock" label="تاریخ و ساعت">
-            روزهای {selectedSub.subscription.day_type} از ساعت{' '}
-            {selectedSub.subscription.start_time} تا{' '}
-            {selectedSub.subscription.end_time}
-        </SummarySection>
-        <SummarySection icon="calendar" label="تعداد جلسات">
-            {selectedSub.subscription.session_count} جلسه در ماه (
-            {selectedSub.subscription.session_count / 4} جلسه در هفته)
-        </SummarySection>
-        <SummarySection icon="trainer" label="مربی">
-            {selectedSub.subscription.instructor_name}
-        </SummarySection>
-        <SummarySection icon="gateway" label="درگاه پرداخت">
-            <Image src={zarinpal} alt="zarinpal" className="w-24" />
-        </SummarySection>
+    <div className="w-full flex flex-col ">
+        <div className="grid grid-cols-1 desktop:grid-cols-2 gap-6  desktop:gap-x-4 desktop:gap-y-8 desktop:justify-center desktop:p-4 desktop:rounded-xl">
+            <SummarySection icon="solidAddressCard" label="نام اشتراک">
+                {selectedSub.subscription.sub_name}
+            </SummarySection>
+            <SummarySection icon="dumbleSolid" label="کلاس انتخاب شده">
+                {selectedSub.name}
+            </SummarySection>
+            <SummarySection icon="day" label="روز">
+                {selectedSub?.subscription?.class_days
+                    ?.map(cls => persianDays[cls])
+                    .join('، ')}
+            </SummarySection>
+            <SummarySection icon="clock" label="ساعت">
+                از {selectedSub.subscription.start_time} تا{' '}
+                {selectedSub.subscription.end_time}
+            </SummarySection>
+            <SummarySection icon="calendar" label="تعداد جلسات">
+                {selectedSub.subscription.session_count} جلسه در{' '}
+                {selectedSub.subscription.duration_value}{' '}
+                {selectedSub.subscription.duration_unit} (
+                {selectedSub?.subscription?.class_days?.length} جلسه در هفته)
+            </SummarySection>
+            <SummarySection icon="trainer" label="مربی">
+                {selectedSub.subscription?.instructor}
+            </SummarySection>
+            <SummarySection icon="gateway" label="درگاه پرداخت">
+                <Image src={zarinpal} alt="zarinpal" className="w-24" />
+            </SummarySection>
+        </div>
         {isDesktop && !limit && (
             <PaymentBox
                 selectedSub={selectedSub}
@@ -176,11 +265,10 @@ const SubscriptionSummary = ({
         )}
     </div>
 )
-
 // Payment button
 const PaymentBox = ({ selectedSub, loading, onPay, isMobile = false }) => (
     <div
-        className={`flex justify-between items-center ${
+        className={`flex justify-between items-center mt-8 ${
             isMobile
                 ? 'w-full  fixed bottom-0 right-0 px-4 py-3 bg-success shadow-custom'
                 : 'w-full desktop:w-full px-4 py-3 bg-success rounded-md shadow-custom'

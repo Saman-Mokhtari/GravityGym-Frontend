@@ -1,7 +1,6 @@
 'use client'
 import axios from '@/lib/axios'
-import useSWR from 'swr'
-import { useClassContext } from '@/context/ClassContext'
+import useSWR, { mutate } from 'swr'
 import { useState } from 'react'
 
 export const useSubscription = () => {
@@ -18,18 +17,13 @@ export const useSubscription = () => {
                 .catch(() => null), // Return `null` on error instead of `undefined`
     )
 
-    const subscription = async ({ setSelectedSub, setErrors, ...props }) => {
-        setErrors([])
-        const fetchedProps = await props
-        axios
-            .get(`/api/subscription/${fetchedProps?.sub_id}`)
-            .then(res => {
-                setSelectedSub(res.data.data)
-            })
-            .catch(error => setErrors(error))
+    const subscription = sub_id => {
+        return useSWR(sub_id ? `/api/subscription/${sub_id}` : null, () =>
+            axios.get(`/api/subscription/${sub_id}`).then(res => res.data.data),
+        )
     }
 
-    const create = async ({ setErrors, sub_id, setSuccess, ...props }) => {
+    const create = async ({ setErrors, setSuccess, ...props }) => {
         setErrors([])
         setLoading(true)
         setSuccess(false)
@@ -55,7 +49,7 @@ export const useSubscription = () => {
         const fetchedProps = await props
         axios
             .patch(`/api/subscription/${fetchedProps?.sub_id}`, props)
-            .then(res => {
+            .then(() => {
                 setLoading(false)
                 setSuccess(true)
             })
@@ -66,5 +60,24 @@ export const useSubscription = () => {
             })
     }
 
-    return { active, loading, subscription, create, update }
+    const deleteSub = async ({ setSubDeleted, setErrors, ...props }) => {
+        setLoading(true)
+        setErrors([])
+        await csrf()
+
+        axios
+            .delete(`/api/subscription/${props?.sub_id}/delete`, props)
+            .then(() => {
+                mutate(`/api/subscription/${props?.sub_id}`)
+                setSubDeleted(true)
+                setLoading(false)
+            })
+            .catch(error => {
+                const errors = error?.response?.data?.errors || {}
+                setErrors(errors)
+                setLoading(false)
+            })
+    }
+
+    return { active, loading, subscription, create, update, deleteSub }
 }

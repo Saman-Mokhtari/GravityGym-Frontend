@@ -1,13 +1,13 @@
-import Link from 'next/link'
+'use client'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default async function PaymentStatus({ searchParams }) {
-    const searchParam = await searchParams
-    const status = searchParam.status
-    const ref_id = searchParam.ref_id
-    const message = searchParam.message
-
+export default function PaymentStatus() {
+    const searchParam = useSearchParams()
+    const status = searchParam.get('status')
+    const ref_id = searchParam.get('ref_id')
+    const message = searchParam.get('message')
     const success = status === 'success'
     return (
         <div className="w-full flex justify-center items-center mt-10">
@@ -38,11 +38,15 @@ export default async function PaymentStatus({ searchParams }) {
 }
 
 function LinkToClasses() {
+    const router = useRouter()
+
     return (
-        <Link
-            href="/dashboard/classes"
-            className="w-full py-5 rounded-md flex justify-center items-center border border-bgTertiary">
+        <div
+            onClick={() => {
+                router.replace('/dashboard/classes')
+            }}
+            className="w-full cursor-pointer hover:scale-105 transition-all py-5 rounded-md flex justify-center items-center border border-bgTertiary">
             بازگشت به صفحه قبل
-        </Link>
+        </div>
     )
 }

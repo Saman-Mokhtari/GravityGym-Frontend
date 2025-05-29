@@ -7,13 +7,11 @@ import FormLabel from '@/components/FormLabel'
 import ResendCode from '@/components/ResendCode'
 import ErrorLabel from '@/components/ErrorLabel'
 import PrimaryButton from '@/components/PrimaryButton'
-import { useRouter } from 'next/navigation'
 
 export default function OtpSection({ codeExpired, phoneNumber }) {
     const { otp, loading } = useAuth()
-    const [user, setUser] = useState(null)
+    const [, setUser] = useState(null)
     const [errors, setErrors] = useState([])
-    const router = useRouter()
     const [part1, setPart1] = useState('')
     const [part2, setPart2] = useState('')
     const [part3, setPart3] = useState('')

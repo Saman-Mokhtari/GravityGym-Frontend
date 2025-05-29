@@ -1,21 +1,18 @@
 'use client'
 import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
-import DatePicker from 'react-multi-date-picker'
-import jalali from 'react-date-object/calendars/jalali'
-import persian_fa from 'react-date-object/locales/persian_fa'
+import { DatePicker } from 'zaman'
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import image from '/public/images/completesignup.jpg'
 import { useAuth } from '@/hooks/auth'
 import PrimaryButton from '@/components/PrimaryButton'
 import ErrorLabel from '@/components/ErrorLabel'
-import { useRouter } from 'next/navigation'
-import CreatableSelect from 'react-select/creatable'
+import Select from 'react-select'
 import Link from 'next/link'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function CompleteSignup() {
-    const router = useRouter()
     const [birthDate, setBirthDate] = useState('')
     const [fullName, setFullName] = useState('')
     const [gender, setGender] = useState('')
@@ -26,10 +23,9 @@ export default function CompleteSignup() {
     const [height, setHeight] = useState('')
     const [weight, setWeight] = useState('')
     const [termsAccepted, setTermsAccepted] = useState(false)
-    const [informationSuccess, setInformationSuccess] = useState(false)
     const [disabilities, setDisabilities] = useState(null)
     const [noDisability, setNoDisability] = useState(false)
-
+    const { setTitle } = useNavigationTitle()
     const disabilitiesOptions = [
         { value: 'دیابت', label: 'دیابت' },
         { value: 'فشار خون بالا', label: 'فشار خون بالا' },
@@ -63,12 +59,11 @@ export default function CompleteSignup() {
             label: 'مشکلات ارتوپدی (مفاصل، استخوان‌ها، ستون فقرات)',
         },
     ]
-
     const { completeSignup, loading } = useAuth()
-
+    const { logout } = useAuth()
     useEffect(() => {
-        if (informationSuccess) return router.replace('/dashboard')
-    }, [informationSuccess])
+        setTitle('تکمیل اطلاعات')
+    }, [])
 
     const submitForm = async e => {
         e.preventDefault()
@@ -85,7 +80,6 @@ export default function CompleteSignup() {
                 disabilities: disabilities,
                 terms: termsAccepted,
                 setErrors,
-                setInformationSuccess,
             })
         } catch (error) {
             setErrors(prevErrors => ({
@@ -94,18 +88,19 @@ export default function CompleteSignup() {
         }
     }
 
-    const handleDateChange = date => {
-        if (date) {
-            // Ensure the date is in the expected format before setting the state
-            const formattedDate = convertPersianToEnglishDigits(
-                date.format('YYYY/MM/DD'),
-            )
-            setBirthDate(formattedDate)
-        }
+    const formatDate = date => {
+        const d = new Date(date)
+        const yyyy = d.getFullYear()
+        const mm = String(d.getMonth() + 1).padStart(2, '0')
+        const dd = String(d.getDate()).padStart(2, '0')
+        return `${yyyy}-${mm}-${dd}`
     }
-
+    const handleDateChange = value => {
+        const formatted = formatDate(value.value)
+        setBirthDate(formatted)
+    }
     return (
-        <div className="w-full flex flex-col desktop:flex-row desktop:overflow-y-hidden">
+        <div className="w-full flex flex-col desktop:flex-row desktop:overflow-y-hidden pb-8 desktop:pb-0">
             <div className="w-full desktop:w-1/2 desktop:h-[96vh] desktop:overflow-y-scroll mt-[6rem] desktop:mt-4 flex container flex-col gap-6">
                 <h2 className="text-[25px] font-bold hidden desktop:flex">
                     تکمیل ثبت‌نام
@@ -161,14 +156,10 @@ export default function CompleteSignup() {
                             />
                         </FormLabel>
                         <DatePicker
-                            value={birthDate}
                             onChange={handleDateChange}
-                            calendar={jalali}
-                            locale={persian_fa}
-                            calendarPosition="bottom-right"
-                            editable={false}
-                            inputClass={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors.birthDate && 'border border-error text-error placeholder-error'}`}
-                            containerStyle={{ width: '100%' }}
+                            position="center"
+                            className={`!font-font !rounded-xl`}
+                            inputClass={`w-full desktop:w-1/3  py-3 rounded-sm border py-4 !rounded-md bg-bgInput text-textPrimary text-[18px] ${errors.birthDate && 'border !border-error !text-error placeholder-error'}`}
                         />
                         {errors.birthDate && (
                             <ErrorLabel text={errors.birthDate} />
@@ -183,10 +174,19 @@ export default function CompleteSignup() {
                         </FormLabel>
                         <input
                             type="text"
-                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.national_id && 'border border-error text-error placeholder-error'}`}
+                            inputMode="numeric"
+                            maxLength="10"
+                            value={nationalId}
                             onChange={e => {
-                                setNationalId(e.target.value)
+                                const onlyDigits = e.target.value.replace(
+                                    /\D/g,
+                                    '',
+                                ) // حذف حروف غیراعدادی
+                                if (onlyDigits.length <= 10) {
+                                    setNationalId(onlyDigits)
+                                }
                             }}
+                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.national_id && 'border border-error text-error placeholder-error'}`}
                         />
                         {errors.national_id && (
                             <ErrorLabel text={errors.national_id} />
@@ -201,7 +201,7 @@ export default function CompleteSignup() {
                                 className="text-[8px] text-error absolute top-1 -left-2"
                             />
                         </FormLabel>
-                        <CreatableSelect
+                        <Select
                             isMulti
                             name="disabilitiesOptions"
                             options={disabilitiesOptions}
@@ -209,22 +209,10 @@ export default function CompleteSignup() {
                             isDisabled={noDisability}
                             value={disabilities}
                             placeholder="انتخاب کنید"
-                            formatCreateLabel={inputValue =>
-                                `افزودن بیماری خاص به لیست "${inputValue}"`
-                            }
+                            isSearchable
                             onChange={selectedOption =>
                                 setDisabilities(selectedOption)
                             }
-                            onCreateOption={inputValue => {
-                                const newOption = {
-                                    value: inputValue,
-                                    label: inputValue,
-                                }
-                                setDisabilities(prev => [
-                                    ...(prev || []),
-                                    newOption,
-                                ])
-                            }}
                             className={`w-full ${noDisability && '!cursor-not-allowed'}`}
                             classNamePrefix="react-select"
                             styles={{
@@ -234,9 +222,13 @@ export default function CompleteSignup() {
                                     color: `rgb(var(--color-text-primary))`,
                                     fontSize: '18px',
                                     borderRadius: '0.375rem',
-                                    border: `1px solid ${state.isFocused ? 'rgb(var(--color-text-primary))' : 'rgb(var(--color-text-primary))'}`,
+                                    border: `1px solid ${
+                                        state.isFocused
+                                            ? 'rgb(var(--color-text-primary))'
+                                            : 'rgb(var(--color-text-primary))'
+                                    }`,
                                     boxShadow: 'none',
-                                    outline: 'none', // ✅ این خط رو اضافه کن
+                                    outline: 'none',
                                     padding: '0.5rem',
                                     '&:hover': {
                                         borderColor:
@@ -339,39 +331,50 @@ export default function CompleteSignup() {
                             <ErrorLabel text={errors.insurance} />
                         )}
                     </div>
-                    <div className="w-full flex items-center justify-between gap-3">
-                        <div className="flex flex-col gap-2">
-                            <FormLabel text="قد" error={errors.height}>
-                                <Icons
-                                    name="important"
-                                    className="text-[8px] text-error absolute top-1 -left-2"
+                    <div className="w-full flex flex-col items-start justify-between gap-3">
+                        <div className="w-full flex gap-2 justify-between">
+                            <div className="flex flex-col gap-2">
+                                <FormLabel
+                                    text="قد (سانتی‌متر)"
+                                    error={errors.height}>
+                                    <Icons
+                                        name="important"
+                                        className="text-[8px] text-error absolute top-1 -left-2"
+                                    />
+                                </FormLabel>
+                                <input
+                                    type="number"
+                                    onWheel={e => e.target.blur()}
+                                    className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.height && 'border border-error text-error placeholder-error'}`}
+                                    onChange={e => {
+                                        setHeight(e.target.value)
+                                    }}
                                 />
-                            </FormLabel>
-                            <input
-                                type="text"
-                                className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.height && 'border border-error text-error placeholder-error'}`}
-                                onChange={e => {
-                                    setHeight(e.target.value)
-                                }}
-                            />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <FormLabel
+                                    text="وزن (کیلوگرم)"
+                                    error={errors.weight}>
+                                    <Icons
+                                        name="important"
+                                        className="text-[8px] text-error absolute top-1 -left-2"
+                                    />
+                                </FormLabel>
+                                <input
+                                    type="number"
+                                    onWheel={e => e.target.blur()}
+                                    className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.weight && 'border border-error text-error placeholder-error'}`}
+                                    onChange={e => {
+                                        setWeight(e.target.value)
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col  gap-4">
                             {errors.height && (
                                 <ErrorLabel text={errors.height} />
                             )}
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <FormLabel text="وزن" error={errors.weight}>
-                                <Icons
-                                    name="important"
-                                    className="text-[8px] text-error absolute top-1 -left-2"
-                                />
-                            </FormLabel>
-                            <input
-                                type="text"
-                                className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.weight && 'border border-error text-error placeholder-error'}`}
-                                onChange={e => {
-                                    setWeight(e.target.value)
-                                }}
-                            />
                             {errors.weight && (
                                 <ErrorLabel text={errors.weight} />
                             )}
@@ -379,9 +382,7 @@ export default function CompleteSignup() {
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <FormLabel
-                            text="آدرس ایمیل"
-                            error={errors.email}></FormLabel>
+                        <FormLabel text="آدرس ایمیل" error={errors.email} />
                         <input
                             type="email"
                             className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors.email && 'border border-error text-error placeholder-error'}`}
@@ -405,15 +406,23 @@ export default function CompleteSignup() {
                             <p>را می‌پذیرم.</p>
                         </div>
                     </div>
-                    <PrimaryButton
-                        loading={loading}
-                        className=""
-                        disabled={!termsAccepted}>
-                        تکمیل ثبت نام
-                    </PrimaryButton>
+                    <div className="w-full flex flex-col gap-5">
+                        <PrimaryButton
+                            loading={loading}
+                            className=""
+                            disabled={!termsAccepted}>
+                            تکمیل ثبت نام
+                        </PrimaryButton>
+                        <div
+                            onClick={logout}
+                            className="text-textSecondary cursor-pointer pb-4 hover:text-textPrimary text-[18px] flex items-center gap-3">
+                            <Icons name="swap" className="text-[18px]" />
+                            <p>ورود با حسابی دیگر</p>
+                        </div>
+                    </div>
                 </form>
             </div>
-            <div className="w-1/2 h-screen hidden overflow-y-hidden desktop:flex relative">
+            <div className="w-1/2 !h-screen hidden !overflow-y-hidden desktop:flex relative">
                 <Image
                     src={image}
                     alt="image"
@@ -423,17 +432,4 @@ export default function CompleteSignup() {
             </div>
         </div>
     )
-}
-
-function convertPersianToEnglishDigits(str) {
-    const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
-    const englishDigits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
-
-    return str
-        .split('')
-        .map(char => {
-            const index = persianDigits.indexOf(char)
-            return index !== -1 ? englishDigits[index] : char
-        })
-        .join('')
 }

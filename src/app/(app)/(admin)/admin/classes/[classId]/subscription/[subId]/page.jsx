@@ -1,7 +1,6 @@
 'use client'
-import { useClassContext } from '@/context/ClassContext'
 import { useEffect, useRef, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useSubscription } from '@/hooks/subscription'
 import FormLabel from '@/components/FormLabel'
 import InformationCell from '@/components/InformationCell'
@@ -14,56 +13,46 @@ import Tippy from '@tippyjs/react'
 import { useEnrollments } from '@/hooks/enrollment'
 import Select from 'react-select'
 import { useUser } from '@/hooks/user'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
-    const { selectedSub, setSelectedSub } = useClassContext()
     const { subscription } = useSubscription()
-    const [errors, setErrors] = useState(null)
+    const router = useRouter()
+    const [, setErrors] = useState(null)
     const params = useParams()
+    const { data: selectedSub } = subscription(params?.subId)
     const { persianDays, subscriptionStatus, persianRoles } = useTranslator()
     const [isManaging, setIsManaging] = useState(false)
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
     const [selectedEnrollments, setSelectedEnrollments] = useState([])
     const [selectedUsers, setSelectedUsers] = useState(null)
     const { users } = useUser()
-    const { blkCancel, create, loading } = useEnrollments()
+    const { blkCancel, create, loading, cancel } = useEnrollments()
     const [newUsers, setNewUsers] = useState(null)
     const selectRef = useRef()
-    const removeUserFromList = userId => {
-        const newEnrollments = selectedSub?.enrollments?.filter(
-            enroll => enroll?.userInfo?.id !== userId,
-        )
-        setSelectedSub({ ...selectedSub, enrollments: newEnrollments })
-    }
-    useEffect(() => {
-        if (!selectedSub) {
-            const fetchSub = async () => {
-                try {
-                    await subscription({
-                        setErrors,
-                        sub_id: params?.subId,
-                        setSelectedSub,
-                    })
-                } catch (e) {
-                    setErrors(prevErrors => ({ ...prevErrors, e }))
-                }
-            }
-            fetchSub()
-        }
-    }, [selectedSub])
+    const [subDeleted, setSubDeleted] = useState(false)
+    const { deleteSub } = useSubscription()
+    const { setTitle } = useNavigationTitle()
 
     useEffect(() => {
         if (users && selectedSub) {
-            const filteredUsers = users.filter(user => {
-                const enrolledIds = selectedSub?.enrollments?.map(
-                    enroll => enroll?.userInfo?.id,
+            setTitle(
+                `اشتراک ${selectedSub?.sub_name} -  ${selectedSub?.class?.name}`,
+            )
+            const enrolledIds = selectedSub?.enrollments
+                ?.filter(
+                    enroll =>
+                        !['cancelled', 'expired'].includes(enroll?.status),
                 )
+                ?.map(enroll => enroll?.userInfo?.id)
+
+            const filteredUsers = users.filter(user => {
                 return !enrolledIds.includes(user?.id)
             })
+
             setNewUsers(filteredUsers)
         }
     }, [users, selectedSub])
-
     const toggleSelect = id => {
         setSelectedEnrollments(prev => {
             if (prev.includes(id)) {
@@ -72,6 +61,21 @@ export default function Main() {
                 return [...prev, id]
             }
         })
+    }
+
+    const handleDelete = async (user, enroll_id, sub_id) => {
+        setIsConfirmingDelete(false)
+        try {
+            await cancel({
+                sub_id: sub_id,
+                enroll_id: enroll_id,
+                setErrors,
+            })
+            // if (onUserDelete) onUserDelete(user?.id)
+            toast.success('کاربر با موفقیت حذف شد.')
+        } catch (error) {
+            setErrors(error)
+        }
     }
 
     const toggleSelectAll = () => {
@@ -95,29 +99,14 @@ export default function Main() {
             try {
                 await blkCancel({
                     enrollment_ids: selectedEnrollments,
+                    sub_id: params?.subId,
                     setErrors,
                     userDeletionToast,
                 })
-                const updatedEnrollments = selectedSub.enrollments.filter(
-                    enroll => !selectedEnrollments.includes(enroll.id),
-                )
-                setSelectedSub({
-                    ...selectedSub,
-                    enrollments: updatedEnrollments,
-                })
-                const deletedUsers = selectedSub.enrollments
-                    .filter(enroll => selectedEnrollments.includes(enroll.id))
-                    .map(enroll => enroll.userInfo)
-
-                setNewUsers(prev => [
-                    ...prev,
-                    ...deletedUsers.filter(
-                        du => !prev.some(p => p.id === du.id),
-                    ),
-                ])
 
                 setSelectedEnrollments([])
                 setIsConfirmingDelete(false)
+                setIsManaging(false)
             } catch (e) {
                 setErrors(prevErrors => ({ ...prevErrors, e }))
             }
@@ -137,28 +126,6 @@ export default function Main() {
                         .filter(selectedUser => selectedUser?.id)
                         .map(selectedUser => selectedUser?.id),
                 })
-                // ساخت enrollments موقتی برای نمایش سریع
-                const newEnrollments = selectedUsers.map(user => ({
-                    id: `temp-${user.id}`, // آیدی موقتی برای رندر بدون تداخل
-                    userInfo: user,
-                    status: 'active',
-                }))
-
-                // افزودن کاربران به لیست اعضای کلاس
-                setSelectedSub(prev => ({
-                    ...prev,
-                    enrollments: [
-                        ...(prev.enrollments || []),
-                        ...newEnrollments,
-                    ],
-                }))
-
-                // حذف کاربران انتخاب‌شده از لیست انتخابی
-                setNewUsers(prev =>
-                    prev?.filter(
-                        u => !selectedUsers.some(sel => sel.id === u.id),
-                    ),
-                )
 
                 // پاک کردن فرم انتخاب
                 setSelectedUsers(null)
@@ -170,10 +137,31 @@ export default function Main() {
         createEnrollment()
     }
 
+    const handleSubDelete = async () => {
+        try {
+            await deleteSub({ setSubDeleted, setErrors, sub_id: params?.subId })
+        } catch (errors) {
+            setErrors(prev => [prev, errors])
+        }
+    }
+
+    useEffect(() => {
+        if (subDeleted) {
+            toast.success('اشتراک با موفقیت حذف شد!')
+            const timeOut = setTimeout(() => {
+                router.push(`/admin/classes/${params?.classId}`)
+            }, 2000)
+
+            return () => {
+                clearTimeout(timeOut)
+            }
+        }
+    }, [subDeleted])
+
     return (
         <div className="w-full flex flex-col gap-6">
             <Toaster />
-            <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-8">
                 <div className="w-full flex items-center justify-between">
                     <FormLabel text="مشخصات اشتراک" />
                     <Link
@@ -183,7 +171,7 @@ export default function Main() {
                         <p className="text-[16px]">ویرایش اشتراک</p>
                     </Link>
                 </div>
-                <div className="w-full grid grid-cols-1 desktop:grid-cols-2 flex-col gap-6">
+                <div className="w-full grid grid-cols-2 desktop:grid-cols-2 flex-col gap-6">
                     <InformationCell
                         title="نام اشتراک"
                         data={selectedSub?.sub_name}
@@ -219,27 +207,89 @@ export default function Main() {
                         data={`${(selectedSub?.price * 1000000).toLocaleString()} تومانء`}
                         dataClassName="!text-success !font-bold"
                     />
+                    <div className="w-fit flex items-center justify-start">
+                        <Tippy
+                            asChild
+                            visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
+                            trigger={
+                                isConfirmingDelete
+                                    ? 'manual'
+                                    : 'mouseenter focus'
+                            } // در حالت false عادی باشه
+                            onClickOutside={() => setIsConfirmingDelete(false)}
+                            interactive={true}
+                            placement="top"
+                            theme="light-border"
+                            className="!col-span-1 !w-fit"
+                            arrow={false}
+                            content={
+                                isConfirmingDelete ? (
+                                    <div className="text-center p-2">
+                                        <p className="text-sm mb-2">
+                                            آیا مطمئن هستید؟
+                                        </p>
+                                        <div className="flex justify-center gap-3">
+                                            <button
+                                                onClick={() => {
+                                                    handleSubDelete()
+                                                }}
+                                                className="text-white bg-red-800 hover:bg-red-900 px-3 py-1 rounded text-sm">
+                                                حذف
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    setIsConfirmingDelete(false)
+                                                }
+                                                className="text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
+                                                لغو
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    'حذف اشتراک'
+                                )
+                            }>
+                            <div
+                                onClick={() => {
+                                    setIsConfirmingDelete(true)
+                                }}
+                                className="group p-1 cursor-pointer">
+                                <div className="px-4 py-2 w-fit flex items-center group gap-3 flex-row-reverse text-error border border-error rounded-md hover:bg-error hover:text-bgPrimary transition-all">
+                                    <p>حذف اشتراک</p>
+                                    <Icons
+                                        name="trash"
+                                        className="text-[20px] text-error group-hover:font-black group-hover:text-bgPrimary"
+                                    />
+                                </div>
+                            </div>
+                        </Tippy>
+                    </div>
                 </div>
             </div>
 
-            <div className="w-full flex flex-col gap-2">
+            <div className="w-full flex flex-col gap-2 ">
                 <div className="w-full flex items-center justify-between">
                     <FormLabel text="اعضای کلاس" />
-
-                    <div
-                        onClick={() => setIsManaging(prev => !prev)}
-                        className={`flex justify-center items-center gap-2 w-[12rem] py-2  border border-textPrimary  rounded-lg   transition-all duration-200 cursor-pointer ${isManaging ? 'bg-textPrimary text-bgPrimary hover:bg-bgPrimary hover:border-textPrimary hover:text-textPrimary' : 'bg-bgPrimary text-textPrimary hover:text-white hover:bg-textPrimary'}`}>
-                        <Icons
-                            name={isManaging ? 'close' : 'settings'}
-                            className="transition-transform duration-200 group-hover:rotate-90"
-                        />
-                        <p className="text-sm font-medium">
-                            {isManaging ? 'لغو مدیریت' : 'مدیریت اعضای کلاس'}
-                        </p>
-                    </div>
+                    {selectedSub?.enrollments?.filter(
+                        e => !['cancelled', 'expired'].includes(e.status),
+                    ).length !== 0 && (
+                        <div
+                            onClick={() => setIsManaging(prev => !prev)}
+                            className={`flex justify-center items-center gap-2 w-[12rem] py-2  border border-textPrimary  rounded-lg   transition-all duration-200 cursor-pointer ${isManaging ? 'bg-textPrimary text-bgPrimary hover:bg-bgPrimary hover:border-textPrimary hover:text-textPrimary' : 'bg-bgPrimary text-textPrimary hover:text-white hover:bg-textPrimary'}`}>
+                            <Icons
+                                name={isManaging ? 'close' : 'settings'}
+                                className="transition-transform duration-200 group-hover:rotate-90"
+                            />
+                            <p className="text-sm font-medium">
+                                {isManaging
+                                    ? 'لغو مدیریت'
+                                    : 'مدیریت اعضای کلاس'}
+                            </p>
+                        </div>
+                    )}
                 </div>
-                {isManaging && selectedEnrollments.length !== 0 && (
-                    <div className="w-full p-2 mt-3 flex items-center justify-between">
+                {isManaging && (
+                    <div className="w-full p-2 mt-3 flex flex-col gap-4 desktop:flex items-start desktop:items-center justify-between">
                         <p className="text-[18px] font-medium">
                             تعداد اعضای انتخاب شده: {selectedEnrollments.length}{' '}
                             نفر
@@ -295,7 +345,9 @@ export default function Main() {
                         </Tippy>
                     </div>
                 )}
-                {selectedSub?.enrollments.length === 0 && (
+                {selectedSub?.enrollments?.filter(
+                    e => !['cancelled', 'expired'].includes(e.status),
+                ).length === 0 && (
                     <div className="w-full flex items-center justify-center text-center p-4      rounded-xl mt-2">
                         <div className="flex flex-col gap-2 items-center">
                             <p className="text-[18px] font-medium">
@@ -305,7 +357,7 @@ export default function Main() {
                     </div>
                 )}
                 <div className="w-full flex flex-col gap-1">
-                    {isManaging && selectedEnrollments.length !== 0 && (
+                    {isManaging && (
                         <form action="">
                             <label className="flex items-center gap-2 cursor-pointer">
                                 <input
@@ -358,7 +410,9 @@ export default function Main() {
                                     user={enroll?.userInfo}
                                     canDelete={true}
                                     enroll_id={enroll?.id}
-                                    onUserDelete={removeUserFromList}
+                                    handleDelete={handleDelete}
+                                    sub_id={params?.subId}
+                                    // onUserDelete={removeUserFromList}
                                 />
                             </div>
                         ))}
@@ -367,11 +421,12 @@ export default function Main() {
                 <form
                     onSubmit={handleAddingUser}
                     className="flex justify-between gap-3 w-full">
-                    <div className="w-full flex gap-2">
+                    <div className="w-full flex gap-6 desktop:gap-2 flex-col desktop:flex-row">
                         <Select
                             className="w-full"
                             isClearable
-                            placeholder="جستجو عضو"
+                            placeholder="افزودن عضو جدید"
+                            closeMenuOnSelect={false}
                             portal
                             isMulti
                             menuPlacement="top"
@@ -383,11 +438,25 @@ export default function Main() {
                             }
                             options={
                                 Array.isArray(newUsers)
-                                    ? newUsers.map(user => ({
-                                          value: user?.id,
-                                          label: `${user?.name} (${persianRoles[user?.role]})`,
-                                          data: user,
-                                      }))
+                                    ? [...newUsers]
+                                          .sort((a, b) => {
+                                              const rolePriority = {
+                                                  athlete: 1,
+                                                  superUser: 2,
+                                                  manager: 3,
+                                                  admin: 4,
+                                              }
+                                              const aPriority =
+                                                  rolePriority[a.role] || 999
+                                              const bPriority =
+                                                  rolePriority[b.role] || 999
+                                              return aPriority - bPriority
+                                          })
+                                          .map(user => ({
+                                              value: user?.id,
+                                              label: `${user?.name} (${persianRoles[user?.role]})`,
+                                              data: user,
+                                          }))
                                     : []
                             }
                             styles={{
@@ -397,16 +466,17 @@ export default function Main() {
                                 }),
                             }}
                         />
+
                         <button
                             disabled={!selectedUsers}
-                            className="min-h-[48px] rounded-md hover:scale-95 disabled:cursor-not-allowed hover:bg-textPrimary/70 transition-all text-bgPrimary bg-textPrimary w-[12rem]">
+                            className="min-h-[48px] rounded-md hover:scale-95 disabled:cursor-not-allowed hover:bg-textPrimary/70 transition-all text-bgPrimary bg-textPrimary w-full desktop:w-[12rem]">
                             {loading ? (
                                 <Icons
                                     name="loadingSpinner"
                                     className="animate-spin text-[20px]"
                                 />
                             ) : (
-                                'افزودن افراد'
+                                'افزودن'
                             )}
                         </button>
                     </div>

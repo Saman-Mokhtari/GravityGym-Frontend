@@ -5,12 +5,19 @@ import { useAuth } from '@/hooks/auth'
 import { useSubscription } from '@/hooks/subscription'
 import { useClass } from '@/hooks/class'
 import { usePayment } from '@/hooks/payment'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import { useEffect } from 'react'
 
 const Dashboard = () => {
     const { users } = useAuth()
     const { active: subscriptions } = useSubscription()
     const { classes } = useClass()
     const { payments } = usePayment()
+    const { setTitle } = useNavigationTitle()
+
+    useEffect(() => {
+        setTitle('در یک نگاه')
+    }, [])
     // انتظار برای دریافت داده‌ها
     if (!users || !subscriptions || !classes || !payments) {
         return <div>در حال بارگذاری...</div>
@@ -35,10 +42,10 @@ const Dashboard = () => {
         .reduce((sum, payment) => sum + payment.amount, 0)
 
     return (
-        <div className="w-full flex justify-center flex-col gap-6">
+        <div className="w-full flex justify-center flex-col gap-6 pb-10">
             <div className="w-full flex flex-col gap-4">
                 <FormLabel text="باشگاه در یک نگاه" />
-                <div className="w-full flex items-center flex-wrap justify-between gap-y-6 ">
+                <div className="grid grid-cols-2 items-center  gap-4 flex-wrap justify-between gap-y-6 ">
                     <StatsCard title="تعداد ورزشکاران">
                         {athletesCount} نفر
                     </StatsCard>

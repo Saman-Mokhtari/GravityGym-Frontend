@@ -1,41 +1,26 @@
 'use client'
-import { useClassContext } from '@/context/ClassContext'
 import { useEffect, useState } from 'react'
 import PageTitle from '@/components/PageTitle'
 import FormLabel from '@/components/FormLabel'
 import SubscriptionSelect from '@/components/SubscriptionSelect'
-import { useParams, useSelectedLayoutSegment } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useClass } from '@/hooks/class'
-import { toast, Toaster } from 'react-hot-toast'
 import StatsCard from '@/components/StatsCard'
 import Icons from '@/components/Icons'
 import Link from 'next/link'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
-    const [errors, setErrors] = useState(null)
-    const { selectedClass, setSelectedClass } = useClassContext()
+    const params = useParams()
     const { gymClass, loading } = useClass()
+    const { data: selectedClass } = gymClass(params?.classId)
     const [athletesCount, setAthletesCount] = useState(0)
     const [instructorCount, setInstructorCount] = useState(0)
-    const params = useParams()
+    const { setTitle } = useNavigationTitle()
+
     useEffect(() => {
-        if (!selectedClass) {
-            const fetchClass = async () => {
-                try {
-                    await gymClass({
-                        sub_id: params?.classId,
-                        setSelectedClass,
-                        setErrors,
-                    })
-                } catch (error) {
-                    setErrors(prevErrors => ({
-                        ...prevErrors,
-                    }))
-                }
-            }
-            fetchClass()
-        }
         if (selectedClass) {
+            setTitle(`کلاس ${selectedClass?.name}`)
             setAthletesCount(
                 selectedClass?.subscriptions?.reduce((sum, sub) => {
                     const validEnrollments =

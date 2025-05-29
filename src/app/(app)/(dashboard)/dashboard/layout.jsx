@@ -1,14 +1,21 @@
 'use client'
 import useWindowSize from '@/hooks/useWindowSize'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useAuth } from '@/hooks/auth'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
-import BottomNavbar from '@/components/BottomNavbar'
+import AthleteBottomNavbar from '@/components/AthleteBottomNavbar'
 import DashboardNavigation from '@/components/DashboardNavigation'
 import Link from 'next/link'
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import SkeletonDashboardLoader from '@/components/SkeletonDashboardLoader'
+import Tippy from '@tippyjs/react'
+import 'tippy.js/dist/tippy.css' // core styles
+import 'tippy.js/dist/svg-arrow.css'
+import {
+    NavigationTitleProvider,
+    useNavigationTitle,
+} from '@/context/NavigationTitleContext' // if you're using SVG arrows
 
 export default function Layout({ children }) {
     const { isDesktop } = useWindowSize()
@@ -21,29 +28,37 @@ export default function Layout({ children }) {
         }
     }, [user])
 
+    if (!user || typeof isDesktop === 'undefined') {
+        return <SkeletonDashboardLoader />
+    }
+
     if (!isDesktop) {
         return (
             <>
-                <DashboardNavigation />
-                <div
-                    className={
-                        pathName !== '/complete-signup'
-                            ? 'w-full flex flex-col mt-[6rem] pb-10 container'
-                            : undefined
-                    }>
-                    {children}
-                </div>
-                <BottomNavbar />
+                <NavigationTitleProvider>
+                    <DashboardNavigation />
+                    <div
+                        className={
+                            pathName !== '/complete-signup'
+                                ? 'w-full flex flex-col mt-[6rem] pb-10 container'
+                                : undefined
+                        }>
+                        {children}
+                    </div>
+                    <AthleteBottomNavbar />
+                </NavigationTitleProvider>
             </>
         )
     }
 
     return (
-        <div className="w-screen h-screen flex bg-bgDashboard p-3 gap-4 shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
-            <Sidebar user={user} logout={logout} pathName={pathName} />
-            <MainPanel pathName={pathName}>{children}</MainPanel>
-            <LeftPanel />
-        </div>
+        <NavigationTitleProvider>
+            <div className="w-screen h-screen flex bg-bgDashboard p-3 gap-4 shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)]">
+                <Sidebar user={user} logout={logout} pathName={pathName} />
+                <MainPanel pathName={pathName}>{children}</MainPanel>
+                <LeftPanel />
+            </div>
+        </NavigationTitleProvider>
     )
 }
 
@@ -62,6 +77,7 @@ function Sidebar({ user, logout, pathName }) {
                     <SidebarLink
                         className="sidebarDisable"
                         href="/dashboard"
+                        disable={true}
                         icon={pathName === '/admin' ? 'gridSolid' : 'gridLight'}
                         active={pathName === '/admin'}
                         label="صفحه اصلی داشبورد"
@@ -82,16 +98,26 @@ function Sidebar({ user, logout, pathName }) {
             </div>
 
             <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-4 py-1">
-                    <div className="w-[2.5rem] aspect-square rounded-full bg-gray-200 flex justify-center items-center">
-                        <Icons
-                            name="user"
-                            className="text-[20px] text-textSecondary"
-                        />
-                    </div>
-                    <h2 className="font-bold text-[18px]">{user?.name}</h2>
-                </div>
-
+                <Tippy
+                    arrow={true}
+                    content="اطلاعات کاربری"
+                    className="font-font">
+                    <Link
+                        href="/dashboard/profile"
+                        className={`flex items-center gap-4 group py-2 justify-between hover:bg-bgDashboardHover hover:border-textSecondary rounded-md px-2  cursor-pointer ${pathName === '/dashboard/profile' && '!bg-bgDashboardHover '}`}>
+                        <div className="flex items-center gap-3">
+                            <div className="w-[2.5rem] aspect-square rounded-full bg-gray-200 flex justify-center items-center">
+                                <Icons
+                                    name="user"
+                                    className="text-[20px] text-textSecondary"
+                                />
+                            </div>
+                            <h2 className="font-bold text-[16px]">
+                                {user?.name}
+                            </h2>
+                        </div>
+                    </Link>
+                </Tippy>
                 <div
                     onClick={logout}
                     className="flex items-center gap-4 hover:bg-bgDashboardHover cursor-pointer py-1 rounded-md transition">
@@ -110,14 +136,14 @@ function Sidebar({ user, logout, pathName }) {
     )
 }
 
-function SidebarItem({ icon, label }) {
-    return (
-        <div className="w-full p-2 rounded-md cursor-pointer flex items-center gap-2 text-[18px] transition-all hover:bg-bgDashboardHover">
-            <Icons name={icon} className="text-[20px]" />
-            <h2>{label}</h2>
-        </div>
-    )
-}
+// function SidebarItem({ icon, label }) {
+//     return (
+//         <div className="w-full p-2 rounded-md cursor-pointer flex items-center gap-2 text-[18px] transition-all hover:bg-bgDashboardHover">
+//             <Icons name={icon} className="text-[20px]" />
+//             <h2>{label}</h2>
+//         </div>
+//     )
+// }
 
 function SidebarLink({ href, icon, label, active, className = null }) {
     return (
@@ -133,11 +159,12 @@ function SidebarLink({ href, icon, label, active, className = null }) {
 }
 
 function MainPanel({ children, pathName }) {
+    const { title } = useNavigationTitle()
     return (
         <div className="w-[60vw] overflow-y-auto h-full bg-bgPrimary rounded-xl shadow-[0px_0px_6px_0px_rgba(0,_0,_0,_0.15)] overflow-hidden">
             <div className="w-full border-b border-border h-16 flex px-4 items-center justify-between">
                 <h2 className="text-[20px] font-medium text-textSecondary">
-                    کلاس‌های من
+                    {title}
                 </h2>
                 {pathName === '/dashboard/classes' && (
                     <div className="flex items-center gap-2 text-success flex-row-reverse">

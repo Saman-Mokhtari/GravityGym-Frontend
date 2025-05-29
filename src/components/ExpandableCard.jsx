@@ -3,7 +3,6 @@ import { useLayoutEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import Icons from '@/components/Icons'
 import FormLabel from '@/components/FormLabel'
-import { usePathname } from 'next/navigation'
 import { useTranslator } from '@/hooks/translator'
 
 export default function ExpandableCard({
@@ -14,7 +13,6 @@ export default function ExpandableCard({
 }) {
     const [isOpen, setIsOpen] = useState(false)
     const contentRef = useRef(null)
-    const pathName = usePathname()
     // Animate open/close using scrollHeight trick
     useLayoutEffect(() => {
         const el = contentRef.current
@@ -66,7 +64,7 @@ export default function ExpandableCard({
             {/* 👉 Expandable Section */}
             <div
                 ref={contentRef}
-                className={`overflow-hidden flex flex-col w-full gap-4 mb-4`}
+                className={`overflow-hidden flex flex-col w-full gap-8 mb-4`}
                 style={{ height: 0, opacity: 0 }}>
                 {gymClass.subscriptions.map(subscription => (
                     <ExpandableDetail
@@ -92,100 +90,113 @@ function ExpandableDetail({
 }) {
     const { persianDays } = useTranslator()
     return (
-        <div className=" pt-4 flex flex-col gap-4 text-[16px] text-right border border-border rounded-md">
-            {/* 🕒 Date & Time */}
-            <div className="w-full flex items-center justify-between">
-                <div className="flex flex-col gap-2  px-2 w-1/2">
-                    <div className="flex items-center gap-2 w-full">
-                        <Icons name="clock" className="text-border" />
-                        <FormLabel text="روز" />
+        <div className="pt-2 border border-border rounded-md text-[16px] text-right">
+            {/* grid of info: two columns */}
+            <div className="grid grid-cols-2 gap-4  px-4 py-4">
+                {/* نام اشتراک */}
+                <div className="flex flex-col w-full px-2">
+                    <div className="flex items-center gap-2">
+                        <Icons
+                            name="solidAddressCard"
+                            className="text-border"
+                        />
+                        <FormLabel text="نام اشتراک" />
                     </div>
-                    <div className="text-black px-6 flex gap-2 w-full  justify-start text-start">
-                        {subscription?.class_days.map(day => {
-                            return <p key={day.id}>{persianDays[day]}</p>
-                        })}
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-2  px-2 w-1/2">
-                    <div className="flex items-center gap-2 w-full">
-                        <Icons name="clock" className="text-border" />
-                        <FormLabel text="ساعت" />
-                    </div>
-                    <div className="text-black px-6  flex gap-2 w-full  justify-start text-start">
-                        <p>
-                            {subscription.start_time} تا {subscription.end_time}
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            {/*Subscription Session*/}
-            <div className="w-full flex items-start justify-between">
-                <div className="flex flex-col gap-2  px-2 w-1/2">
-                    <div className="flex items-center gap-2 w-full">
-                        <Icons name="clock" className="text-border" />
-                        <FormLabel text="مدت دوره" />
-                    </div>
-                    <div className="text-black px-6  flex gap-2 w-full  justify-start text-start">
-                        <p>
-                            {subscription.duration_value}{' '}
-                            {subscription.duration_unit}
-                        </p>
+                    <div className="mt-1 px-2 text-black">
+                        {subscription?.sub_name}
                     </div>
                 </div>
 
-                <div className="flex flex-col gap-2 px-2 w-1/2">
+                <div className=" flex flex-col w-full px-2 ">
+                    <div className="flex items-center gap-2">
+                        <Icons name="trainer" className="text-border" />
+                        <FormLabel text="مربی" />
+                    </div>
+                    <div className="mt-1 px-2 text-black">
+                        {subscription.instructor}
+                    </div>
+                </div>
+
+                {/* روز */}
+                <div className="flex  border-t border-textPrimary/5 px-2 pt-4 flex-col col-span-2  w-full ">
                     <div className="flex items-center gap-2">
                         <Icons name="calendar" className="text-border" />
+                        <FormLabel text="روز" />
+                    </div>
+                    <div className="mt-1 px-2 flex flex-wrap gap-2 text-black">
+                        {subscription?.class_days
+                            .map(day => persianDays[day])
+                            .join('، ')}
+                    </div>
+                </div>
+
+                {/* ساعت */}
+                <div className="w-full flex col-span-2 border-t pt-4 border-textPrimary/5">
+                    <div className="flex flex-col w-full px-2  ">
+                        <div className="flex items-center gap-2">
+                            <Icons name="clock" className="text-border" />
+                            <FormLabel text="ساعت" />
+                        </div>
+                        <div className="mt-1 px-2 text-black">
+                            {subscription.start_time} تا {subscription.end_time}
+                        </div>
+                    </div>
+
+                    {/* مدت دوره */}
+                    <div className="flex flex-col w-full px-2  ">
+                        <div className="flex items-center gap-2">
+                            <Icons
+                                name="calendarTime"
+                                className="text-border"
+                            />
+                            <FormLabel text="مدت دوره" />
+                        </div>
+                        <div className="mt-1 px-2 text-black">
+                            {subscription.duration_value}{' '}
+                            {subscription.duration_unit}
+                        </div>
+                    </div>
+                </div>
+
+                {/* تعداد جلسات */}
+                <div className="flex flex-col col-span-2 px-2 pt-4  w-full border-t border-textPrimary/5">
+                    <div className="flex items-center gap-2">
+                        <Icons name="count" className="text-border" />
                         <FormLabel text="تعداد جلسات" />
                     </div>
-                    <div className="text-black px-6 flex gap-2">
-                        <p>
-                            {subscription.session_count} جلسه (
-                            {subscription.session_count / 4} جلسه در هفته)
-                        </p>
+                    <div className="mt-1 px-2 text-black">
+                        {subscription.session_count} جلسه (
+                        {(subscription.session_count / 4).toFixed(0)} جلسه در
+                        هفته)
                     </div>
                 </div>
-            </div>
 
-            <div className="w-full flex items-start justify-between">
-                <div className="flex flex-col gap-2  px-2 w-1/2">
-                    <div className="flex items-center gap-2 w-full">
-                        <Icons name="clock" className="text-border" />
+                {/* نوع کلاس */}
+                <div className="flex flex-col w-full col-span-2  px-2 pt-4 border-t border-textPrimary/5">
+                    <div className="flex items-center gap-2">
+                        <Icons name="category" className="text-border" />
                         <FormLabel text="نوع کلاس" />
                     </div>
-                    <div className="text-black px-6  flex gap-2 w-full  justify-start text-start">
-                        <p>{subscription.class_type}</p>
+                    <div className="mt-1 px-2 text-black">
+                        {subscription.class_type}
                     </div>
                 </div>
-            </div>
-            {/* 🧑‍🏫 Trainer */}
-            <div className="flex flex-col gap-2 px-2">
-                <div className="flex items-center gap-2">
-                    <Icons name="trainer" className="text-border" />
-                    <FormLabel text="مربی" />
-                </div>
-                <div className="text-black px-6">
-                    <p>{subscription.instructor_name}</p>
-                </div>
+
+                {/* مربی (عرض دو ستون) */}
             </div>
 
-            {/*Price*/}
+            {/* قیمت و دکمه در پایین */}
             <div className="flex w-full justify-between px-4 items-center py-3 bg-bgTertiary rounded-b-md">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-2 text-bgPrimary">
-                        <Icons name="price" className="" />
+                        <Icons name="price" />
                         <FormLabel
                             text="هزینه اشتراک"
                             className="!text-bgPrimary"
                         />
                     </div>
-                    <div className="text-black px-6 flex gap-2">
-                        <p className="font-bold text-[18px] text-success">
-                            {(subscription.price * 1000000).toLocaleString()}{' '}
-                            تومانءء
-                        </p>
+                    <div className="mt-1 px-2 text-black font-bold text-[18px] text-success">
+                        {(subscription.price * 1000000).toLocaleString()} تومان
                     </div>
                 </div>
 
@@ -199,7 +210,11 @@ function ExpandableDetail({
                                 day_type: subscription.day_type,
                                 start_time: subscription.start_time,
                                 end_time: subscription.end_time,
-                                instructor_name: subscription.instructor_name,
+                                instructor: subscription.instructor, // ✅ اصلاح شد
+                                sub_name: subscription.sub_name,
+                                duration_value: subscription?.duration_value,
+                                duration_unit: subscription?.duration_unit,
+                                class_days: subscription?.class_days,
                                 id: subscription.id,
                                 session_count: subscription.session_count,
                                 price: subscription.price,
@@ -207,10 +222,8 @@ function ExpandableDetail({
                             },
                         })
                     }}
-                    className="flex items-center border border-bgPrimary p-4 rounded-md">
-                    <h2 className="text-end font-bold text-bgPrimary">
-                        انتخاب کلاس
-                    </h2>
+                    className="px-4 py-2 border border-bgPrimary rounded-md text-bgPrimary font-bold">
+                    انتخاب کلاس
                 </button>
             </div>
         </div>

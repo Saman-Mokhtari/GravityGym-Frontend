@@ -1,13 +1,10 @@
 'use client'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import axios from '@/lib/axios'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { toast, Toaster } from 'react-hot-toast'
 
 export const useUser = () => {
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
     const csrf = () => axios.get('/sanctum/csrf-cookie')
 
     const { data: users } = useSWR('/api/users', () =>
@@ -25,32 +22,76 @@ export const useUser = () => {
     )
 
     const user = async ({ setUserData, ...props }) => {
-        axios.get('/api/users/{user_id}', { params: props }).then(res => {
+        axios.get(`/api/users/${props?.user_id}`).then(res => {
             const data = res.data.data
             return setUserData(data)
         })
     }
 
-    const createUser = async ({ setSuccessful, setErrors, ...props }) => {
+    const create = async ({ setSuccessful, setErrors, ...props }) => {
         setLoading(true)
         setErrors([])
         await csrf()
         axios
             .post('/api/user/create', props)
-            .then(res => {
+            .then(() => {
                 setLoading(false)
                 setSuccessful(true)
-                // router.replace('/admin/users')
             })
             .catch(error => {
                 const errors = error?.response?.data?.errors || {}
                 setErrors(errors)
+                setLoading(false)
             })
     }
+
+    const update = async ({ setSuccessful, setErrors, ...props }) => {
+        setLoading(true)
+        setErrors([])
+        await csrf()
+        const fetchedProps = await props
+        const url = fetchedProps?.user_id
+            ? `/api/users/${fetchedProps?.user_id}/update`
+            : `/api/user/update`
+        axios
+            .patch(url, props)
+            .then(() => {
+                setLoading(false)
+                setSuccessful(true)
+            })
+            .catch(error => {
+                const errors = error?.response?.data?.errors || {}
+                setErrors(errors)
+                setLoading(false)
+            })
+    }
+
+    const deleteUser = async ({ setUserDeleted, setErrors, ...props }) => {
+        setLoading(true)
+        setErrors([])
+        await csrf()
+
+        axios
+            .delete(`/api/users/${props?.userId}/delete`, props)
+            .then(() => {
+                mutate('/api/users')
+                setUserDeleted(true)
+                setLoading(false)
+            })
+            .catch(error => {
+                const errors = error?.response?.data?.errors || {}
+                setErrors(errors)
+                setLoading(false)
+            })
+    }
+
     return {
         users,
         user,
         instructors,
-        createUser,
+        create,
+        update,
+        loading,
+        deleteUser,
     }
 }

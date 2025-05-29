@@ -1,16 +1,17 @@
 'use client'
 
 import FormLabel from '@/components/FormLabel'
-import Icons from '@/components/Icons'
 import Select from 'react-select'
 import { useEffect, useState } from 'react'
 import { useUser } from '@/hooks/user'
-import { TimePicker } from 'zaman'
+import TimePicker from '@/components/TimePicker'
 import ErrorLabel from '@/components/ErrorLabel'
 import PrimaryButton from '@/components/PrimaryButton'
 import { useSubscription } from '@/hooks/subscription'
 import { useParams, useRouter } from 'next/navigation'
 import { toast, Toaster } from 'react-hot-toast'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import { useClass } from '@/hooks/class'
 
 export default function Main() {
     const [errors, setErrors] = useState(null)
@@ -32,6 +33,9 @@ export default function Main() {
     const params = useParams()
     const [success, setSuccess] = useState(false)
     const router = useRouter()
+    const { gymClass } = useClass()
+    const { data: fetchedClass } = gymClass(params?.classId)
+    const { setTitle } = useNavigationTitle()
     const classDayOptions = [...Array(7).keys()].map(i => ({
         value: i,
         label: [
@@ -67,22 +71,14 @@ export default function Main() {
         { value: 0, label: 'غیرفعال' },
     ]
 
+    useEffect(() => {
+        setTitle(`ایجاد اشتراک جدید - کلاس ${fetchedClass?.name}`)
+    }, [])
+
     const formatPrice = value => {
         const numeric = value.replace(/,/g, '').replace(/\D/g, '')
         if (!numeric) return ''
         return parseInt(numeric).toLocaleString('en-US')
-    }
-
-    const handleStartTimeChange = selected => {
-        const hour = String(selected?.hour).padStart(2, '0')
-        const minute = String(selected?.minute).padStart(2, '0')
-        setStartTime(`${hour}:${minute}`)
-    }
-
-    const handleEndTimeChange = selected => {
-        const hour = String(selected?.hour).padStart(2, '0')
-        const minute = String(selected?.minute).padStart(2, '0')
-        setEndTime(`${hour}:${minute}`)
     }
 
     const handlePriceChange = e => {
@@ -189,6 +185,7 @@ export default function Main() {
                         isMulti
                         className="w-full"
                         isClearable
+                        closeMenuOnSelect={false}
                         placeholder="انتخاب روز"
                         onChange={selected => {
                             const selectedValues =
@@ -216,13 +213,7 @@ export default function Main() {
 
                 <div className="w-full flex flex-col gap-2">
                     <FormLabel text="ساعت شروع کلاس" />
-                    <TimePicker
-                        onChange={handleStartTimeChange}
-                        round="thin"
-                        position="center"
-                        className="!font-font !rounded-md !w-full"
-                        inputClass={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.start_time && 'border-error text-error placeholder-error'}`}
-                    />
+                    <TimePicker onChange={value => setStartTime(value)} />
                     {errors?.start_time && (
                         <ErrorLabel text={errors.start_time} />
                     )}
@@ -230,13 +221,7 @@ export default function Main() {
 
                 <div className="w-full flex flex-col gap-2">
                     <FormLabel text="ساعت پایان کلاس" />
-                    <TimePicker
-                        onChange={handleEndTimeChange}
-                        round="thin"
-                        position="center"
-                        className="!font-font !rounded-md !w-full"
-                        inputClass={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.end_time && 'border-error text-error placeholder-error'}`}
-                    />
+                    <TimePicker onChange={value => setEndTime(value)} />
                     {errors?.end_time && <ErrorLabel text={errors.end_time} />}
                 </div>
 
@@ -244,6 +229,7 @@ export default function Main() {
                     <FormLabel text="تعداد جلسات" />
                     <input
                         type="number"
+                        onWheel={e => e.target.blur()}
                         className={`w-1/2 border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.session_count && 'border-error text-error placeholder-error'}`}
                         onChange={e => setSessionCount(e.target.value)}
                     />
@@ -342,6 +328,7 @@ export default function Main() {
                     <Select
                         className="w-full"
                         isClearable
+                        isSearchable={false}
                         placeholder="انتخاب وضعیت"
                         menuPlacement="top"
                         onChange={selected => setSubStatus(selected?.value)}
@@ -371,11 +358,11 @@ export default function Main() {
                             type="text"
                             value={price}
                             onChange={handlePriceChange}
-                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.price && 'border-error text-error placeholder-error'}`}
+                            className={`w-full pr-16 border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.price && 'border-error text-error placeholder-error'}`}
                             placeholder="مثال: 1,000,000"
                         />
-                        <h2 className="text-[18px] absolute left-3 top-1/2 -translate-y-1/2">
-                            تومان
+                        <h2 className="text-[18px] pl-2 border-l border-textSecondary flex gap-2  absolute right-3 top-1/2 -translate-y-1/2">
+                            <p>تومانءء</p>
                         </h2>
                     </div>
                     {errors?.price && <ErrorLabel text={errors.price} />}

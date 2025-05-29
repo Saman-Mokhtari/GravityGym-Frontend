@@ -3,12 +3,11 @@ import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
 import { useTranslator } from '@/hooks/translator'
 import { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useClassContext } from '@/context/ClassContext'
 
 export default function SubscriptionSelect({ sub }) {
-    const { persianDays } = useTranslator()
+    const { persianDays, subscriptionStatus } = useTranslator()
     const params = useParams()
     const [athleteCount, setAthleteCount] = useState(0)
     const router = useRouter()
@@ -35,6 +34,15 @@ export default function SubscriptionSelect({ sub }) {
             <div className="grid grid-cols-1 desktop:grid-cols-2 items-center gap-3 w-full">
                 <div className="w-full flex flex-col gap-4">
                     <div className="w-full flex flex-col gap-2">
+                        <FormLabel text="نام اشتراک" />
+                        <p className="font-normal text-[18px]">
+                            {sub?.sub_name}
+                        </p>
+                    </div>
+                </div>
+
+                <div className="w-full flex flex-col gap-4">
+                    <div className="w-full flex flex-col gap-2">
                         <FormLabel text="روزهای" />
                         <p className="font-normal text-[18px]">
                             {sub?.class_days
@@ -56,6 +64,22 @@ export default function SubscriptionSelect({ sub }) {
                         <FormLabel text="مربی دوره" />
                         <p className="font-normal text-[18px]">
                             {sub?.instructor}
+                        </p>
+                    </div>
+                </div>
+                <div className="w-full flex flex-col gap-4">
+                    <div className="w-full flex flex-col gap-2">
+                        <FormLabel text="وضعیت اشتراک" />
+                        <p className="font-normal text-[18px]">
+                            {subscriptionStatus[sub?.is_active]}
+                        </p>
+                    </div>
+                </div>
+                <div className="w-full flex flex-col gap-4">
+                    <div className="w-full flex flex-col gap-2">
+                        <FormLabel text="ساعت برگزاری کلاس" />
+                        <p className="font-normal text-[18px]">
+                            از {sub?.start_time} تا {sub?.end_time}
                         </p>
                     </div>
                 </div>

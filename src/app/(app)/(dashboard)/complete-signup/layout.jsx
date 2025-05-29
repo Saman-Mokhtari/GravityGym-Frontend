@@ -1,20 +1,25 @@
 'use client'
-import { useEffect } from 'react'
 import { useAuth } from '@/hooks/auth'
-import { useRouter } from 'next/navigation'
-import Loading from '@/app/(auth)/Loading'
-import { toast } from 'react-hot-toast'
+import { usePathname, useRouter } from 'next/navigation'
+import GravityLoader from '@/components/GravityLoader'
+import { useEffect } from 'react'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Layout({ children }) {
+    const { user } = useAuth()
     const router = useRouter()
-    const { user, swrLoading } = useAuth()
+    const pathname = usePathname()
+    const { setTitle } = useNavigationTitle()
+    useEffect(() => {
+        if (pathname === '/complete-signup' && user && user.name) {
+            router.replace('/dashboard/classes')
+        } else if (user?.name) {
+            router.back()
+            setTitle('تکمیل اطلاعات')
+        }
+    }, [user, pathname, router])
 
-    if (swrLoading) return <h2>Loading</h2>
+    if (!user) return <GravityLoader />
 
-    if (!user) {
-        router.push('/')
-        return null
-    }
-    if (!user) return <h2>loading</h2>
     return <>{children}</>
 }

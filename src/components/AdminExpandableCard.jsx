@@ -73,7 +73,7 @@ export default function AdminExpandableCard({ cls, setSelectedClass }) {
     )
 }
 
-function ExpandableDetail({ subscription, setSelectedClass, cls }) {
+function ExpandableDetail({ subscription, cls }) {
     return (
         <div className=" pt-4 flex flex-col gap-4 text-[16px] text-right border border-border rounded-md">
             {/* 🕒 Date & Time */}

@@ -55,7 +55,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    const otp = async ({ setUser, setErrors, ...props }) => {
+    const otp = async ({ setErrors, ...props }) => {
         setLoading(true)
         await csrf()
 
@@ -69,10 +69,15 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 })
                 const user = res?.data?.user
                 if (user?.role === 'superUser') {
-                    window.location.href = 'http://localhost:3000/admin'
+                    window.location.href = 'http://192.168.171.145:3000/admin'
+                } else if (!user?.name) {
+                    window.location.href =
+                        'http://192.168.171.145:3000/complete-signup'
                 } else {
-                    window.location.href = 'http://localhost:3000/dashboard'
+                    window.location.href =
+                        'http://192.168.171.145:3000/dashboard/classes'
                 }
+                setLoading(false)
                 return mutate()
             })
             .catch(error => {
@@ -95,11 +100,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
     }
 
-    const completeSignup = async ({
-        setErrors,
-        setInformationSuccess,
-        ...props
-    }) => {
+    const completeSignup = async ({ setErrors, ...props }) => {
         setLoading(true)
         await csrf()
 
@@ -109,8 +110,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .post('/complete-signup', props)
             .then(() => {
                 setLoading(false)
-                setInformationSuccess(true)
-                return mutate()
+                window.location.href =
+                    'http://192.168.171.145:3000/dashboard/classes'
+                mutate()
             })
             .catch(error => {
                 const status = error.response?.status
@@ -145,6 +147,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             })
             .catch(error => {
                 if (error.response?.status !== 422) throw error
+                setLoading(false)
             })
     }
 
@@ -162,14 +165,18 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
     }
 
     const logout = async () => {
+        await csrf()
         if (!error) {
-            await axios.post('/logout').then(() => mutate())
+            await axios.post('/logout').then(() => {
+                window.location.href = 'http://192.168.171.145:3000/'
+                mutate()
+            })
         }
         router.replace('/')
     }
 
     useEffect(() => {
-        if (loading || swrLoading) return
+        if (loading || swrLoading || !user) return
 
         if (middleware === 'guest' && redirectIfAuthenticated && user) {
             router.replace(redirectIfAuthenticated)

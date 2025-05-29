@@ -46,6 +46,7 @@ export const usePayment = () => {
                 router.replace(
                     `/dashboard/classes/enroll/verify-payment/success?status=${res.data.status}&ref_id=${res.data.ref_id}&message=${res.data.message}`,
                 )
+                setLoading(false)
             })
             .catch(error => {
                 setLoading(false)

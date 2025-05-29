@@ -1,6 +1,8 @@
 import { Nunito } from 'next/font/google'
 import '@/app/global.css'
 import NavigateToTop from '@/components/NavigateToTop'
+import RouteProgress from '@/components/RouteProgress'
+import { NavigationTitleProvider } from '@/context/NavigationTitleContext'
 
 const nunitoFont = Nunito({
     subsets: ['latin'],
@@ -11,7 +13,8 @@ const RootLayout = ({ children }) => {
     return (
         <html lang="en" className={nunitoFont.className}>
             <body className="antialiased">
-                {children}
+                <RouteProgress /> {/* نوار لودینگ */}
+                <NavigationTitleProvider>{children}</NavigationTitleProvider>
                 <NavigateToTop />
             </body>
         </html>
@@ -19,7 +22,7 @@ const RootLayout = ({ children }) => {
 }
 
 export const metadata = {
-    title: 'Laravel',
+    title: 'Gravity Gym',
 }
 
 export default RootLayout

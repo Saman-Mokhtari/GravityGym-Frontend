@@ -67,7 +67,8 @@ export default function LoginSection({
                                     className={`text-[20px] text-textSecondary ${errors?.phone_number && 'text-error'}`}
                                 />
                                 <div
-                                    className={`flex w-[0.7px] h-[20px] bg-textSecondary ${errors?.phone_number && 'bg-error'}`}></div>
+                                    className={`flex w-[0.7px] h-[20px] bg-textSecondary ${errors?.phone_number && 'bg-error'}`}
+                                />
                             </div>
                         </div>
                     </div>

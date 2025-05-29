@@ -8,7 +8,6 @@ import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import AuthSessionStatus from '@/app/(auth)/AuthSessionStatus'
-import Loading from '@/app/(auth)/Loading' // Import the Loading component
 
 const Login = () => {
     const router = useRouter()
@@ -53,7 +52,7 @@ const Login = () => {
 
     // **Show the loading indicator while authentication is being checked**
     if (loading) {
-        return <Loading />
+        return <h2>Loading</h2>
     }
 
     return (

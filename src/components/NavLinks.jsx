@@ -71,7 +71,7 @@ function Links({ setHamburgerOpen }) {
                         if (!isDesktop) return setHamburgerOpen(false)
                     }}>
                     <li className="text-bgPrimary font-medium text-[20px] hover:scale-105 transition-all hover:text-bgPrimary/70 cursor-pointer">
-                        تعرفه‌ها
+                        دوره‌ها
                     </li>
                 </Link>
                 <Link

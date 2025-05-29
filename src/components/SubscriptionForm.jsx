@@ -1,7 +1,7 @@
 import FormLabel from '@/components/FormLabel'
 import Icons from '@/components/Icons'
 import Select from 'react-select'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useUser } from '@/hooks/user'
 import ErrorLabel from '@/components/ErrorLabel'
 import TimePicker from '@/components/TimePicker'
@@ -15,7 +15,7 @@ export default function SubscriptionForm({
     const [price, setPrice] = useState('')
     const [instructors, setInstructors] = useState(null)
     const { users } = useUser()
-
+    const inputRef = useRef()
     const getError = field => errors?.[`subscriptions.${index}.${field}`]
 
     const classDayOptions = [...Array(7).keys()].map(i => ({
@@ -133,6 +133,7 @@ export default function SubscriptionForm({
                     isMulti
                     className="w-full"
                     isClearable
+                    isSearchable={false}
                     closeMenuOnSelect={false}
                     placeholder="انتخاب روز"
                     onChange={selected => {
@@ -174,13 +175,6 @@ export default function SubscriptionForm({
 
             <div className="w-full flex flex-col gap-2">
                 <FormLabel text="ساعت پایان کلاس" />
-                {/*<TimePicker*/}
-                {/*    onChange={handleEndTimeChange}*/}
-                {/*    round="thin"*/}
-                {/*    position="center"*/}
-                {/*    className="!font-font !rounded-md !w-full"*/}
-                {/*    inputClass={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] placeholder:text-textSecondary focus:outline-none focus:ring-1 ${getError('end_time') ? 'border-error text-error ring-error' : 'focus:ring-textPrimary'}`}*/}
-                {/*/>*/}
                 <TimePicker
                     onChange={value => {
                         handleChange('end_time', value)
@@ -211,6 +205,7 @@ export default function SubscriptionForm({
                 <Select
                     className="w-full"
                     isClearable
+                    isSearchable={false}
                     placeholder="انتخاب نوع کلاس"
                     menuPlacement="top"
                     onChange={selected =>
@@ -241,6 +236,7 @@ export default function SubscriptionForm({
                     <Select
                         className="w-1/2"
                         isClearable
+                        isSearchable={false}
                         placeholder="مقدار"
                         menuPlacement="top"
                         onChange={selected =>
@@ -264,6 +260,7 @@ export default function SubscriptionForm({
                         className="w-1/2"
                         isClearable
                         placeholder="واحد"
+                        isSearchable={false}
                         menuPlacement="top"
                         onChange={selected =>
                             handleChange('duration_unit', selected?.value)
@@ -298,6 +295,7 @@ export default function SubscriptionForm({
                 <Select
                     className="w-full"
                     isClearable
+                    isSearchable={false}
                     placeholder="انتخاب وضعیت"
                     menuPlacement="top"
                     onChange={selected =>
@@ -308,6 +306,7 @@ export default function SubscriptionForm({
                         control: base => ({
                             ...base,
                             minHeight: '56px',
+                            fontFamily: 'iransans',
                             padding: '0.5rem',
                             fontSize: '18px',
                             backgroundColor: 'rgb(var(--color-bg-input))',
@@ -326,6 +325,15 @@ export default function SubscriptionForm({
                     <input
                         type="text"
                         value={price}
+                        ref={inputRef}
+                        onFocus={() => {
+                            setTimeout(() => {
+                                inputRef.current?.scrollIntoView({
+                                    behavior: 'smooth',
+                                    block: 'center',
+                                })
+                            }, 100)
+                        }}
                         onChange={handlePriceChange}
                         className={`w-full pr-16 border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${getError('price') && 'border-error text-error placeholder-error'}`}
                         placeholder="مثال: 1,000,000"

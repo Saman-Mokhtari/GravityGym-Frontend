@@ -1,8 +1,8 @@
 'use client'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import axios from '@/lib/axios'
 import { useState } from 'react'
-import { mutate } from 'swr'
+import { toast } from 'react-hot-toast'
 
 export const useClass = () => {
     const [loading, setLoading] = useState(false)
@@ -22,16 +22,10 @@ export const useClass = () => {
             .catch(() => null),
     )
 
-    const gymClass = async ({ setSelectedClass, setErrors, ...props }) => {
-        setLoading(true)
-        const fetchedProps = await props
-        axios
-            .get(`/api/class/${fetchedProps?.sub_id}`)
-            .then(res => {
-                setLoading(false)
-                setSelectedClass(res.data.data)
-            })
-            .catch(error => setErrors(error))
+    const gymClass = sub_id => {
+        return useSWR(sub_id ? `/api/class/${sub_id}` : null, () =>
+            axios.get(`/api/class/${sub_id}`).then(res => res.data.data),
+        )
     }
 
     const create = async ({ setisSucceeded, setErrors, ...props }) => {
@@ -39,7 +33,7 @@ export const useClass = () => {
         await csrf()
         axios
             .post('/api/class/create', props)
-            .then(res => {
+            .then(() => {
                 setLoading(false)
                 setisSucceeded(true)
                 mutate('/api/classes')
@@ -49,12 +43,30 @@ export const useClass = () => {
                 setErrors(errors.response.data.errors)
             })
     }
+    const deleteClass = async ({ setErrors, ...props }) => {
+        setLoading(true)
+        setErrors([])
+        await csrf()
 
+        axios
+            .delete(`/api/class/${props?.cls?.id}/delete`, props)
+            .then(() => {
+                mutate('/api/classes')
+                setLoading(false)
+                toast.success('کلاس با موفقیت حذف شد!')
+            })
+            .catch(error => {
+                const errors = error?.response?.data?.errors || {}
+                setErrors(errors)
+                setLoading(false)
+            })
+    }
     return {
         active,
         classes,
         gymClass,
         loading,
         create,
+        deleteClass,
     }
 }

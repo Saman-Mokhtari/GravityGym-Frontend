@@ -39,6 +39,7 @@ export default function Footer() {
                         خیابان دارآباد، بن‌بست وکیلی، پلاک 2
                     </p>
                     <Link
+                        target="_blank"
                         href="https://maps.app.goo.gl/Y9jgFmuX1fPpBnHC6"
                         className="flex aspect-video overflow-hidden w-full desktop:w-[70%] rounded-xl shadow-custom">
                         <Image src={location} alt="Gravity Gym Location" />
@@ -55,24 +56,26 @@ export default function Footer() {
                         </h2>
                     </div>
                     <div className="flex flex-col gap-2 text-bgPrimary text-[20px]">
-                        <div
+                        <Link
+                            dir="ltr"
+                            href="tel:02188447489"
+                            className="flex items-center gap-3 w-[11rem] py-2 justify-between">
+                            <Icons
+                                name="externalLink"
+                                className="text-bgSubs"
+                            />
+                            <p>021 - 88447489</p>
+                        </Link>
+                        <Link
+                            href="tel:09352214805"
                             dir="ltr"
                             className="flex items-center gap-3 w-[11rem] py-2 justify-between">
                             <Icons
                                 name="externalLink"
                                 className="text-bgSubs"
                             />
-                            <Link href="tel:02188447489">021 - 88447489</Link>
-                        </div>
-                        <div
-                            dir="ltr"
-                            className="flex items-center gap-3 w-[11rem] py-2 justify-between">
-                            <Icons
-                                name="externalLink"
-                                className="text-bgSubs"
-                            />
-                            <Link href="tel:09352214805">09352214805</Link>
-                        </div>
+                            <p>09352214805</p>
+                        </Link>
                     </div>
                 </div>
             </div>

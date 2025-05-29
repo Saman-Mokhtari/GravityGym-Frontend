@@ -13,6 +13,7 @@ export default function SubscriptionClassList({
     const [drawerIsOpen, setDrawerIsOpen] = useState(false)
     const [openModal, setOpenModal] = useState(false)
     const { active } = useClass()
+
     return !isDesktop ? (
         <Drawer.Root
             open={drawerIsOpen}
@@ -47,14 +48,12 @@ export default function SubscriptionClassList({
                             <div className="w-full h-fit flex flex-col gap-4">
                                 {Array.isArray(active) &&
                                     active.map(gymClass => (
-                                        // <ExpandableCard
-                                        //     key={gymClass.id}
-                                        //     gymClass={gymClass}
-                                        //     setSelectedSub={setSelectedSub}
-                                        //     setDrawerIsOpen={setDrawerIsOpen}
-                                        //     setOpenModal={setOpenModal}
-                                        // />
                                         <div
+                                            onClick={() => {
+                                                setSelectedClass(gymClass)
+                                                return setDrawerIsOpen(false)
+                                            }}
+                                            key={gymClass?.id}
                                             className={`flex items-center justify-between w-full px-4 py-4 border border-gray-300 rounded-lg  text-right cursor-pointer transition-all duration-200`}>
                                             <span className="font-semibold text-[17px]">
                                                 {gymClass.name}

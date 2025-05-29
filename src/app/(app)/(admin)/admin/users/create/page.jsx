@@ -10,6 +10,7 @@ import { useUser } from '@/hooks/user'
 import { DatePicker } from 'zaman'
 import { toast, Toaster } from 'react-hot-toast'
 import Select from 'react-select'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
     const router = useRouter()
@@ -23,11 +24,12 @@ export default function Main() {
     const [phoneNumber, setPhoneNumber] = useState(false)
     const [height, setHeight] = useState('')
     const [weight, setWeight] = useState('')
-    const [termsAccepted, setTermsAccepted] = useState(false)
+    const [termsAccepted] = useState(false)
     const [disabilities, setDisabilities] = useState(null)
     const [noDisability, setNoDisability] = useState(false)
     const [successful, setSuccessful] = useState(false)
     const [role, setRole] = useState('athlete')
+    const { setTitle } = useNavigationTitle()
     const disabilitiesOptions = [
         { value: 'دیابت', label: 'دیابت' },
         { value: 'فشار خون بالا', label: 'فشار خون بالا' },
@@ -61,7 +63,7 @@ export default function Main() {
             label: 'مشکلات ارتوپدی (مفاصل، استخوان‌ها، ستون فقرات)',
         },
     ]
-    const { createUser, loading } = useUser()
+    const { create, loading } = useUser()
     const roleOptions = [
         {
             value: 'athlete',
@@ -80,11 +82,14 @@ export default function Main() {
             label: 'سوپر ادمین',
         },
     ]
+    useEffect(() => {
+        setTitle('افزودن عضو جدید')
+    }, [])
 
     const submitForm = async e => {
         e.preventDefault()
         try {
-            await createUser({
+            await create({
                 fullName: fullName,
                 gender: gender,
                 birthDate: birthDate,
@@ -189,7 +194,7 @@ export default function Main() {
                         className="w-full"
                         isClearable
                         defaultValue={{ value: 'athlete', label: 'ورزشکار' }}
-                        placeholder="انتخاب مربی"
+                        placeholder="انتخاب رول"
                         menuPlacement="top"
                         options={roleOptions}
                         onChange={selected => {
@@ -255,7 +260,10 @@ export default function Main() {
                         onWheel={e => e.target.blur()}
                         className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px]  ${errors.national_id && 'border border-error text-error placeholder-error'}`}
                         onChange={e => {
-                            setNationalId(e.target.value)
+                            const onlyDigits = e.target.value.replace(/\D/g, '') // حذف حروف غیراعدادی
+                            if (onlyDigits.length <= 10) {
+                                setNationalId(onlyDigits)
+                            }
                         }}
                     />
                     {errors.national_id && (
@@ -363,7 +371,7 @@ export default function Main() {
                     />
 
                     <div className="flex items-center gap-2 flex-row-reverse justify-end">
-                        <FormLabel text="مشکل خاصی ندارم" />
+                        <FormLabel text="فاقد مشکل خاص" />
                         <input
                             type="checkbox"
                             className="cursor-pointer"
@@ -408,7 +416,7 @@ export default function Main() {
                 </div>
                 <div className="w-full flex items-center justify-between gap-3">
                     <div className="flex flex-col gap-2">
-                        <FormLabel text="قد" error={errors.height}>
+                        <FormLabel text="قد (سانتی‌متر)" error={errors.height}>
                             <Icons
                                 name="important"
                                 className="text-[8px] text-error absolute top-1 -left-2"
@@ -425,7 +433,7 @@ export default function Main() {
                         {errors.height && <ErrorLabel text={errors.height} />}
                     </div>
                     <div className="flex flex-col gap-2">
-                        <FormLabel text="وزن" error={errors.weight}>
+                        <FormLabel text="وزن (کیلوگرم)" error={errors.weight}>
                             <Icons
                                 name="important"
                                 className="text-[8px] text-error absolute top-1 -left-2"
@@ -444,9 +452,7 @@ export default function Main() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <FormLabel
-                        text="آدرس ایمیل"
-                        error={errors.email}></FormLabel>
+                    <FormLabel text="آدرس ایمیل" error={errors.email} />
                     <input
                         type="email"
                         className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors.email && 'border border-error text-error placeholder-error'}`}

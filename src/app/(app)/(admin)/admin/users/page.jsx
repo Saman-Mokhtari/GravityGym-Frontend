@@ -8,35 +8,37 @@ import { useEffect, useState } from 'react'
 import UserSelect from '@/components/UserSelect'
 import { useUser } from '@/hooks/user'
 import Select from 'react-select'
+import { toast } from 'react-hot-toast'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
     const { classes } = useClass()
-    const { users: allUsers } = useUser()
+    const { users: allUsers, deleteUser } = useUser()
 
     const [shownUsers, setShownUsers] = useState(null)
     const [searchText, setSearchText] = useState('')
     const [debouncedSearch, setDebouncedSearch] = useState('')
     const [isSearching, setIsSearching] = useState(false)
-
-    // فیلتر کلاس
+    const [userDeleted, setUserDeleted] = useState(false)
     const [filteredClass, setFilteredClass] = useState(null)
-    // فیلتر نقش
+    const [, setErrors] = useState(null)
     const [selectedRole, setSelectedRole] = useState(null)
-
-    // گزینه‌های نقش
+    const { setTitle } = useNavigationTitle()
     const roleOptions = [
         { value: 'admin', label: 'ادمین' },
-        { value: 'superUser', label: 'سوپر یوزر' },
+        { value: 'superUser', label: 'سوپر ادمین' },
         { value: 'instructor', label: 'مربی' },
         { value: 'athlete', label: 'ورزشکار' },
     ]
 
-    // تنظیم shownUsers اولیه
     useEffect(() => {
         if (allUsers) setShownUsers(allUsers)
     }, [allUsers])
 
-    // debounce برای سرچ
+    useEffect(() => {
+        setTitle('مدیریت اعضای باشگاه')
+    }, [])
+
     useEffect(() => {
         setIsSearching(true)
         const timeout = setTimeout(() => {
@@ -46,13 +48,11 @@ export default function Main() {
         return () => clearTimeout(timeout)
     }, [searchText])
 
-    // اعمال فیلترها
     useEffect(() => {
         if (!allUsers) return
 
         let filtered = [...allUsers]
 
-        // جستجو بر اساس نام
         if (debouncedSearch) {
             filtered = filtered.filter(user =>
                 user.name
@@ -61,12 +61,10 @@ export default function Main() {
             )
         }
 
-        // فیلتر بر اساس نقش
         if (selectedRole) {
             filtered = filtered.filter(user => user.role === selectedRole.value)
         }
 
-        // فیلتر بر اساس کلاس
         if (filteredClass) {
             const className = filteredClass.label
             filtered = filtered.filter(user => {
@@ -88,8 +86,20 @@ export default function Main() {
         setShownUsers(filtered)
     }, [debouncedSearch, selectedRole, filteredClass, allUsers])
 
+    useEffect(() => {
+        if (userDeleted) toast.success('کاربر با موفقیت حذف شد!')
+    }, [userDeleted])
+
+    const handleDelete = async user => {
+        try {
+            await deleteUser({ setUserDeleted, setErrors, userId: user?.id })
+        } catch (errors) {
+            setErrors(prev => [prev, errors])
+        }
+    }
+
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 pb-16">
             <PageTitle firstLine="مدیریت" secondLine="ورزشکارها و مربیان" />
             <Link
                 href="/admin/users/create"
@@ -129,11 +139,12 @@ export default function Main() {
 
                 <div className="w-full flex flex-col gap-1">
                     <FormLabel text="فیلتر بر اساس" />
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex gap-3">
                         {/* فیلتر کلاس */}
                         <Select
-                            className="w-full sm:w-1/2 desktop:w-1/3"
+                            className="w-1/2 desktop:w-1/3"
                             isClearable
+                            isSearchable={false}
                             placeholder="کلاس"
                             options={
                                 Array.isArray(classes)
@@ -155,19 +166,22 @@ export default function Main() {
                                 control: base => ({
                                     ...base,
                                     minHeight: '48px',
+                                    fontFamily: 'iransans',
                                 }),
                                 menuPortal: base => ({
                                     ...base,
                                     direction: 'rtl',
                                     zIndex: 9999,
+                                    fontFamily: 'iransans',
                                 }),
                             }}
                         />
 
                         {/* فیلتر نقش */}
                         <Select
-                            className="w-full sm:w-1/2 desktop:w-1/3"
+                            className="w-1/2 desktop:w-1/3"
                             isClearable
+                            isSearchable={false}
                             placeholder="نقش"
                             options={roleOptions}
                             value={selectedRole}
@@ -182,11 +196,13 @@ export default function Main() {
                                 control: base => ({
                                     ...base,
                                     minHeight: '48px',
+                                    fontFamily: 'iransans',
                                 }),
                                 menuPortal: base => ({
                                     ...base,
                                     direction: 'rtl',
                                     zIndex: 9999,
+                                    fontFamily: 'iransans',
                                 }),
                             }}
                         />
@@ -197,7 +213,12 @@ export default function Main() {
             <div className="w-full flex flex-col gap-1 mt-4">
                 {Array.isArray(shownUsers) &&
                     shownUsers.map(user => (
-                        <UserSelect key={user.id} user={user} />
+                        <UserSelect
+                            key={user.id}
+                            user={user}
+                            canDelete={true}
+                            handleDelete={handleDelete}
+                        />
                     ))}
             </div>
         </div>

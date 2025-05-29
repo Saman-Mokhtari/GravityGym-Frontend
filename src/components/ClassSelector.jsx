@@ -74,7 +74,7 @@ export default function ClassSelector({
                 />
             </div>
             <CenterModal
-                className="w-[30vw]"
+                className="!w-[35vw] h-[90vh]"
                 openModal={openModal}
                 setOpenModal={setOpenModal}>
                 <div
@@ -85,7 +85,7 @@ export default function ClassSelector({
                             کلاس مورد نظر خود را انتخاب کنید
                         </p>
                     </div>
-                    <div className="flex flex-col gap-8 text-[20px] overflow-y-scroll h-[55vh] mt-16">
+                    <div className="flex flex-col gap-8 text-[20px]  overflow-y-scroll h-[70vh] mt-16">
                         <div className="w-full h-fit flex flex-col">
                             {Array.isArray(classes) &&
                                 classes.map(gymClass => (

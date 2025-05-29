@@ -10,8 +10,9 @@ import PrimaryButton from '@/components/PrimaryButton'
 import { useSubscription } from '@/hooks/subscription'
 import { useParams, useRouter } from 'next/navigation'
 import { toast, Toaster } from 'react-hot-toast'
-import { parseStaticPathsResult } from 'next/dist/lib/fallback'
 import { useTranslator } from '@/hooks/translator'
+import SkeletonEditLoader from '@/components/SkeletonEditLoader'
+import { useNavigationTitle } from '@/context/NavigationTitleContext'
 
 export default function Main() {
     const [errors, setErrors] = useState(null)
@@ -28,15 +29,14 @@ export default function Main() {
     const [subStatus, setSubStatus] = useState(null)
     const [subPrice, setSubPrice] = useState(null)
     const [instructors, setInstructors] = useState(null)
-    const [selectedSub, setSelectedSub] = useState(null)
     const { users } = useUser()
-    const { subscription, loading, update } = useSubscription()
     const params = useParams()
+    const { subscription, loading, update } = useSubscription()
+    const { data: selectedSub } = subscription(params?.subId)
     const [success, setSuccess] = useState(false)
     const router = useRouter()
     const { subscriptionStatus } = useTranslator()
-    const [defaultStartTime, setDefaultStartTime] = useState(null)
-    const [defaultEndTime, setDefaultEndTime] = useState(null)
+    const { setTitle } = useNavigationTitle()
     const classDayOptions = [...Array(7).keys()].map(i => ({
         value: i,
         label: [
@@ -90,6 +90,12 @@ export default function Main() {
     }, [users])
 
     useEffect(() => {
+        setTitle(
+            `ویرایش اشتراک ${selectedSub?.sub_name} -  ${selectedSub?.class?.name}`,
+        )
+    }, [])
+
+    useEffect(() => {
         if (selectedSub) {
             setSubName(selectedSub?.sub_name || '')
             setInstructor(
@@ -107,22 +113,8 @@ export default function Main() {
             setSubPrice(selectedSub?.price * 1000000)
             setPrice(formatPrice(String((selectedSub.price || 0) * 1000000)))
         }
-        if (!selectedSub) {
-            const fetchSub = async () => {
-                const sub_id = params?.subId
-                try {
-                    await subscription({
-                        setErrors,
-                        setSelectedSub,
-                        sub_id,
-                    })
-                } catch (e) {
-                    setErrors(prev => [...prev, e])
-                }
-            }
-            fetchSub()
-        }
     }, [selectedSub])
+
     const subCreated = () => {
         toast.success('اشتراک با موفقیت ویرایش  شد.', { duration: 2000 })
     }
@@ -164,7 +156,7 @@ export default function Main() {
         updateSub()
     }
 
-    if (!startTime && !endTime) return <h2>loading</h2>
+    if (!startTime && !endTime) return <SkeletonEditLoader />
 
     return (
         <form onSubmit={handleUpdateSub} className="w-full flex flex-col">
@@ -232,6 +224,7 @@ export default function Main() {
                         isMulti
                         className="w-full"
                         isClearable
+                        closeMenuOnSelect={false}
                         value={classDayOptions.filter(option =>
                             classDays?.includes(option.value),
                         )}
@@ -285,6 +278,7 @@ export default function Main() {
                     <FormLabel text="تعداد جلسات" />
                     <input
                         type="number"
+                        onWheel={e => e.target.blur()}
                         value={sessionCount}
                         className={`w-1/2 border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.session_count && 'border-error text-error placeholder-error'}`}
                         onChange={e => setSessionCount(e.target.value)}
@@ -393,6 +387,7 @@ export default function Main() {
                     <Select
                         className="w-full"
                         isClearable
+                        isSearchable={false}
                         placeholder="انتخاب وضعیت"
                         menuPlacement="top"
                         defaultValue={{
@@ -426,16 +421,17 @@ export default function Main() {
                             type="text"
                             value={price}
                             onChange={handlePriceChange}
-                            className={`w-full border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.price && 'border-error text-error placeholder-error'}`}
+                            className={`w-full pr-16 border py-4 rounded-md bg-bgInput text-textPrimary text-[18px] ${errors?.price && 'border-error text-error placeholder-error'}`}
+                            placeholder="مثال: 1,000,000"
                         />
-                        <h2 className="text-[18px] absolute left-3 top-1/2 -translate-y-1/2">
-                            تومان
+                        <h2 className="text-[18px] pl-2 border-l border-textSecondary flex gap-2  absolute right-3 top-1/2 -translate-y-1/2">
+                            <p>تومانءء</p>
                         </h2>
                     </div>
                     {errors?.price && <ErrorLabel text={errors.price} />}
                 </div>
             </div>
-            <PrimaryButton loading={loading}>ایجاد اشتراک</PrimaryButton>
+            <PrimaryButton loading={loading}>ویرایش اشتراک</PrimaryButton>
         </form>
     )
 }
