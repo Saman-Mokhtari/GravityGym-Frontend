@@ -5,6 +5,7 @@ import { useTranslator } from '@/hooks/translator'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useClassContext } from '@/context/ClassContext'
+import { useAuth } from '@/hooks/auth'
 
 export default function SubscriptionSelect({ sub }) {
     const { persianDays, subscriptionStatus } = useTranslator()
@@ -12,7 +13,7 @@ export default function SubscriptionSelect({ sub }) {
     const [athleteCount, setAthleteCount] = useState(0)
     const router = useRouter()
     const { setSelectedSub } = useClassContext()
-
+    const { user } = useAuth()
     useEffect(() => {
         if (sub) {
             setAthleteCount(
@@ -27,7 +28,12 @@ export default function SubscriptionSelect({ sub }) {
 
     const handleSubClick = () => {
         setSelectedSub(sub)
-        router.push(`/admin/classes/${params?.classId}/subscription/${sub?.id}`)
+        if (user?.role === 'instructor')
+            router.push(`/instructor/assigned-classes/subscription/${sub?.id}`)
+        else if (user?.role === 'superUser')
+            router.push(
+                `/admin/classes/${params?.classId}/subscription/${sub?.id}`,
+            )
     }
     return (
         <div className="w-full flex flex-col items-start justify-between bg-bgInput py-3 px-4 rounded-md mt-2">

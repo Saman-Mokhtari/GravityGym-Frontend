@@ -65,9 +65,9 @@ export default function Class() {
                                         : `تا پایان دوره`
                             }>
                             {enrollment?.status === 'cancelled'
-                                ? 'این دوره کنسل شده است.'
+                                ? 'کنسل شده'
                                 : enrollment?.status === 'expired'
-                                  ? 'این دوره به اتمام رسیده است'
+                                  ? 'تمام شده'
                                   : enrollment?.status === 'reserved'
                                     ? `${enrollment?.remaining_days} روز`
                                     : `${enrollment?.remaining_days} روز`}

@@ -1,9 +1,5 @@
 import Header from '@/components/Header'
 import Suggestions from '@/components/Suggestions'
-import ClassCard from '@/components/ClassCard'
-import calis from '/public/images/calisthenics.jpg'
-import yoga from '/public/images/yoga.jpg'
-import fitness from '/public/images/fitness.jpg'
 import Subscription from '@/components/Subscription'
 import Footer from '@/components/Footer'
 import MainSlider from '@/components/MainSlider'
@@ -32,13 +28,13 @@ const Home = () => {
             </div>
             <div
                 id="subscriptions"
-                className="flex flex-col bg-bgSubs w-full container py-8 items-center gap-8">
-                <div className="border border-bgPrimary py-3 px-6 w-fit rounded-full">
-                    <h2 className="font-light text-[20px] text-bgPrimary">
+                className="flex flex-col bg-bgSubs w-full container py-8 items-center gap-4">
+                <div className="py-3 px-6 w-fit rounded-full">
+                    <h2 className="font-light text-[20px] text-bgPrimary font-black">
                         عضویت
                     </h2>
                 </div>
-                <h2 className="text-[25px] font-light text-bgPrimary leading-10">
+                <h2 className="text-[22px] desktop:text-[25px] text-center font-light text-bgPrimary leading-10">
                     رسیدن به اهداف سلامتی و تناسب اندام شما از همین‌جا آغاز
                     می‌شود!
                 </h2>

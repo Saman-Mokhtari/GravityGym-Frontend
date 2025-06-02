@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import Icons from '@/components/Icons'
 import Link from 'next/link'
 import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import { useAuth } from '@/hooks/auth'
 
 export default function DashboardNavigation() {
     const currentRoute = usePathname()
     const router = useRouter()
+    const { user } = useAuth()
     const { title } = useNavigationTitle()
     const [scrolled, setScrolled] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
@@ -49,12 +51,23 @@ export default function DashboardNavigation() {
                     '/admin/classes',
                     '/admin/users',
                     '/admin/profile',
+                    '/dashboard',
+                    '/dashboard/classes',
+                    '/dashboard/profile',
+                    '/instructor',
+                    '/instructor/classes',
+                    '/instructor/assigned-classes',
+                    '/instructor/profile',
                 ].includes(pathname) && (
                     <Icons
                         name="home"
                         className="text-[24px] font-medium flex"
                         onClick={() => {
-                            router.replace('/admin')
+                            if (user?.role === 'superUser')
+                                router.replace('/admin')
+                            else if (user?.role === 'instructor')
+                                router.replace('/instructor/assigned-classes')
+                            else router.replace('/dashboard/classes')
                         }}
                     />
                 )}

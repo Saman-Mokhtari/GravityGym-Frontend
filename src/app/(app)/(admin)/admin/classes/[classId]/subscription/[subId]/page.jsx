@@ -23,6 +23,7 @@ export default function Main() {
     const { data: selectedSub } = subscription(params?.subId)
     const { persianDays, subscriptionStatus, persianRoles } = useTranslator()
     const [isManaging, setIsManaging] = useState(false)
+    const [isConfirmingSubDelete, setIsConfirmingSubDelete] = useState(false)
     const [isConfirmingDelete, setIsConfirmingDelete] = useState(false)
     const [selectedEnrollments, setSelectedEnrollments] = useState([])
     const [selectedUsers, setSelectedUsers] = useState(null)
@@ -138,6 +139,7 @@ export default function Main() {
     }
 
     const handleSubDelete = async () => {
+        setIsConfirmingSubDelete(false)
         try {
             await deleteSub({ setSubDeleted, setErrors, sub_id: params?.subId })
         } catch (errors) {
@@ -210,35 +212,37 @@ export default function Main() {
                     <div className="w-fit flex items-center justify-start">
                         <Tippy
                             asChild
-                            visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
+                            visible={isConfirmingSubDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
                             trigger={
-                                isConfirmingDelete
+                                isConfirmingSubDelete
                                     ? 'manual'
                                     : 'mouseenter focus'
                             } // در حالت false عادی باشه
-                            onClickOutside={() => setIsConfirmingDelete(false)}
+                            onClickOutside={() =>
+                                setIsConfirmingSubDelete(false)
+                            }
                             interactive={true}
                             placement="top"
                             theme="light-border"
                             className="!col-span-1 !w-fit"
                             arrow={false}
                             content={
-                                isConfirmingDelete ? (
+                                isConfirmingSubDelete ? (
                                     <div className="text-center p-2">
                                         <p className="text-sm mb-2">
                                             آیا مطمئن هستید؟
                                         </p>
                                         <div className="flex justify-center gap-3">
                                             <button
-                                                onClick={() => {
-                                                    handleSubDelete()
-                                                }}
+                                                onClick={handleSubDelete}
                                                 className="text-white bg-red-800 hover:bg-red-900 px-3 py-1 rounded text-sm">
                                                 حذف
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    setIsConfirmingDelete(false)
+                                                    setIsConfirmingSubDelete(
+                                                        false,
+                                                    )
                                                 }
                                                 className="text-gray-700 bg-gray-200 hover:bg-gray-300 px-3 py-1 rounded text-sm">
                                                 لغو
@@ -254,7 +258,11 @@ export default function Main() {
                                     setIsConfirmingDelete(true)
                                 }}
                                 className="group p-1 cursor-pointer">
-                                <div className="px-4 py-2 w-fit flex items-center group gap-3 flex-row-reverse text-error border border-error rounded-md hover:bg-error hover:text-bgPrimary transition-all">
+                                <div
+                                    onClick={() => {
+                                        setIsConfirmingSubDelete(true)
+                                    }}
+                                    className="px-4 py-2 w-fit flex items-center group gap-3 flex-row-reverse text-error border border-error rounded-md hover:bg-error hover:text-bgPrimary transition-all">
                                     <p>حذف اشتراک</p>
                                     <Icons
                                         name="trash"

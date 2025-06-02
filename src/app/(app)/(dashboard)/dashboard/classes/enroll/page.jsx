@@ -34,7 +34,7 @@ export default function Enroll() {
     const { data: fetchedSub } = subscription(subId)
     const { persianDays } = useTranslator()
     useEffect(() => {
-        if (subId) {
+        if (subId && fetchedSub) {
             setSelectedSub({
                 name: fetchedSub?.class?.name,
                 subscription: {
@@ -58,6 +58,7 @@ export default function Enroll() {
     useEffect(() => {
         setTitle('ثبت‌نام کلاس جدید')
     }, [])
+
     const parseTime = t => {
         const [h, m] = t.split(':').map(Number)
         return h * 60 + m
@@ -70,14 +71,14 @@ export default function Enroll() {
         setTimeConflict(false)
         setConflictedEnrollment(null)
 
-        const selected = selectedSub.subscription
-        const selDays = selected.class_days
-        const selStart = parseTime(selected.start_time)
-        const selEnd = parseTime(selected.end_time)
+        const selected = selectedSub?.subscription
+        const selDays = selected?.class_days
+        const selStart = parseTime(selected?.start_time)
+        const selEnd = parseTime(selected?.end_time)
 
         // بررسی اینکه آیا کاربر قبلاً توی این کلاس ثبت‌نام کرده یا نه
         const sameSubEnrollments = activeEnrollments.filter(
-            enr => enr.subscription.id === selected.id,
+            enr => enr.subscription?.id === selected?.id,
         )
 
         if (sameSubEnrollments.length === 1) {
@@ -94,8 +95,8 @@ export default function Enroll() {
                 selDays.includes(day),
             )
             if (!hasSharedDay) return false
-            const enrStart = parseTime(sub.start_time)
-            const enrEnd = parseTime(sub.end_time)
+            const enrStart = parseTime(sub?.start_time)
+            const enrEnd = parseTime(sub?.end_time)
 
             // شرط تداخل زمانی
             const overlap = !(selEnd <= enrStart || selStart >= enrEnd)

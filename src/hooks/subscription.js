@@ -23,6 +23,14 @@ export const useSubscription = () => {
         )
     }
 
+    const InstructorSubscription = () => {
+        return useSWR('/api/subscriptions/instructor', () =>
+            axios
+                .get('/api/subscriptions/instructor')
+                .then(res => res?.data?.data),
+        )
+    }
+
     const create = async ({ setErrors, setSuccess, ...props }) => {
         setErrors([])
         setLoading(true)
@@ -79,5 +87,13 @@ export const useSubscription = () => {
             })
     }
 
-    return { active, loading, subscription, create, update, deleteSub }
+    return {
+        active,
+        loading,
+        subscription,
+        create,
+        update,
+        deleteSub,
+        InstructorSubscription,
+    }
 }

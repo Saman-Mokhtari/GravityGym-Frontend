@@ -21,7 +21,7 @@ export default function SubscriptionCard({ sub }) {
         }
     }
     return (
-        <div className="bg-bgPrimary flex flex-col justify-between items-center py-6 desktop:w-10/12 w-full rounded-2xl h-[30rem]">
+        <div className="bg-bgPrimary flex flex-col justify-between items-center py-6 desktop:w-10/12 w-full rounded-2xl min-h-[30rem]">
             <Toaster />
             <div className="flex flex-col gap-10 w-full items-center">
                 <div className="flex items-start gap-2">
@@ -42,13 +42,13 @@ export default function SubscriptionCard({ sub }) {
                 </div>
                 <div className="flex flex-col items-start pr-8 w-full justify-center gap-4 ">
                     <div className="flex items-start justify-start gap-2">
-                        <div className="flex justify-center items-center aspect-square w-8 border border-bgSubs rounded-full">
+                        <div className="flex flex-shrink-0 justify-center items-center aspect-square w-8 border border-bgSubs rounded-full">
                             <Icons
                                 name="check"
                                 className="text-[18px] text-bgSubs"
                             />
                         </div>
-                        <p className="text-textPrimary text-[18px] font-medium">
+                        <p className="text-textPrimary text-[18px] w-full font-medium">
                             روزهای{' '}
                             {sub?.class_days
                                 ?.map(cls => persianDays[cls])

@@ -10,9 +10,11 @@ export default function LoginButton({ handleClick = null }) {
         <Link
             href={
                 user?.role !== 'superUser'
-                    ? !user?.name
-                        ? '/complete-signup'
-                        : '/dashboard/classes'
+                    ? user?.role === 'instructor'
+                        ? '/instructor/assigned-classes'
+                        : !user?.name
+                          ? '/complete-signup'
+                          : '/dashboard/classes'
                     : '/admin'
             }
             className="w-52 py-4 cursor-pointer hover:scale-105 duration-200 transition-all bg-bgSecondary flex justify-center items-center text-center rounded-full mt-8 desktop:mt-0">

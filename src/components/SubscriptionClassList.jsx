@@ -21,7 +21,7 @@ export default function SubscriptionClassList({
             dismissible>
             <Drawer.Trigger className="cursor-pointer w-full">
                 <div className="w-full border border-bgPrimary rounded-md h-16 justify-between px-3 items-center flex">
-                    <h2 className="font-light text-bgPrimary text-center text-[20px]">
+                    <h2 className="font-light text-bgPrimary text-center text-[18px] desktop:text-[20px]">
                         {selectedClass
                             ? `${selectedClass.name}`
                             : 'کلاس مورد نظر خود را انتخاب کنید'}{' '}

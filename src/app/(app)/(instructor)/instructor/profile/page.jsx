@@ -25,7 +25,7 @@ export default function Main() {
                     <div className="w-full flex items-center p-2 justify-between">
                         <FormLabel text="مشخصات کاربر" />
                         <Link
-                            href="/dashboard/profile/edit"
+                            href="/instructor/profile/edit"
                             className="text-success hover:scale-105 group transition-all flex flex-row-reverse items-center gap-2">
                             <p>ویرایش اطلاعات</p>
                             <Icons
@@ -72,7 +72,7 @@ export default function Main() {
                         />
 
                         {user?.disabilities && (
-                            <div className="flex flex-col gap-2  ">
+                            <div className="flex flex-col gap-2 ">
                                 <h2 className="text-[18px] font-medium">
                                     مشکلات پزشکی
                                 </h2>
@@ -91,12 +91,12 @@ export default function Main() {
                                         بدون مشکل خاص
                                     </p>
                                 )}
+                                <InformationCell
+                                    title="بیمه ورزشی"
+                                    data={persianInsurance[user?.insurance]}
+                                />
                             </div>
                         )}
-                        <InformationCell
-                            title="بیمه ورزشی"
-                            data={persianInsurance[user?.insurance]}
-                        />
                     </div>
                 </div>
             </div>

@@ -70,6 +70,9 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 const user = res?.data?.user
                 if (user?.role === 'superUser') {
                     window.location.href = 'http://192.168.171.145:3000/admin'
+                } else if (user?.role === 'instructor') {
+                    window.location.href =
+                        'http://192.168.171.145:3000/instructor'
                 } else if (!user?.name) {
                     window.location.href =
                         'http://192.168.171.145:3000/complete-signup'

@@ -1,6 +1,4 @@
 import Navigation from '@/components/Navigation'
-import Image from 'next/image'
-import background from '../../public/images/heroBackground.jpg'
 import LoginRegister from '@/components/LoginRegister'
 
 export default function Header() {

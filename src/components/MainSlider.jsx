@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/css'
 import 'swiper/css/pagination'
 import 'swiper/css/navigation'
-import { Pagination, Autoplay, Navigation } from 'swiper/modules'
+import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import MainSliderSlide from '@/components/MainSliderSlide'
 import Icons from '@/components/Icons'
 
@@ -36,7 +36,7 @@ export default function MainSlider() {
             onMouseLeave={() => {
                 setIsHovered(false)
             }}
-            className="flex relative  aspect-video w-[95%]  desktop:aspect-[8/3]  flex-col gap-40  justify-center mx-auto  items-center">
+            className="flex relative aspect-video w-[95%]  desktop:aspect-[8/3]  flex-col gap-40  justify-center mx-auto  items-center">
             <div
                 className={`items-center z-40 gap-4 hidden desktop:flex absolute right-10 top-[75%]
     transition-all duration-300 ease-in-out transform
@@ -51,8 +51,10 @@ export default function MainSlider() {
             </div>
             <Swiper
                 pagination={true}
-                centeredSlides={true}
+                centeredSlides={false}
+                grabCursor={true}
                 loop={true}
+                loopPreventsSliding={true}
                 autoplay={{
                     delay: 4000,
                     disableOnInteraction: false,
@@ -66,9 +68,7 @@ export default function MainSlider() {
                 className="w-full h-full">
                 {Array.isArray(images) &&
                     images?.map(image => (
-                        <SwiperSlide
-                            key={image?.id}
-                            className="!w-full  !h-full !flex !items-center !justify-center">
+                        <SwiperSlide key={image?.id} className="">
                             <MainSliderSlide
                                 desktop={image?.desktop}
                                 mobile={image?.mobile}

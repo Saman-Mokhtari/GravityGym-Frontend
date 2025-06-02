@@ -11,8 +11,9 @@ const AppLayout = ({ children }) => {
     const router = useRouter()
     useEffect(() => {
         if (user && user?.role !== 'superUser') {
-            router.replace('/dashboard')
-        }
+            router.replace('/dashboard/classes')
+        } else if (user && user?.role === 'instructor')
+            router.replace('/instructor/assigned-classes')
     }, [user])
 
     if (!user || user.role !== 'superUser') {

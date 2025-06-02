@@ -117,7 +117,7 @@ export default function User() {
                             {activeOrReserved.map(enroll => (
                                 <ClassButton
                                     key={enroll.id}
-                                    admin={true}
+                                    role="admin"
                                     enrollment={enroll}
                                 />
                             ))}
@@ -144,7 +144,7 @@ export default function User() {
                             {inactiveOrCancelled.map(enroll => (
                                 <ClassButton
                                     key={enroll.id}
-                                    admin={true}
+                                    role={'admin'}
                                     enrollment={enroll}
                                 />
                             ))}
