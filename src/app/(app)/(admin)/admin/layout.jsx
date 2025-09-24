@@ -66,7 +66,7 @@ function Sidebar({ user, logout, pathName }) {
                     <FormLabel text="مدیریت" />
                     <SidebarLink
                         className=""
-                        href="/admin"
+                        href="#"
                         icon={pathName === '/admin' ? 'gridSolid' : 'gridLight'}
                         active={pathName === '/admin'}
                         label="صفحه اصلی داشبورد"

@@ -51,6 +51,7 @@ export default function UserSelect({
                 {canDelete && (
                     <Tippy
                         asChild
+                        disabled={user?.role === 'superUser' ?? true}
                         visible={isConfirmingDelete ? true : undefined} // فقط در حالت true فعال می‌کنه
                         trigger={
                             isConfirmingDelete ? 'manual' : 'mouseenter focus'
@@ -93,11 +94,15 @@ export default function UserSelect({
                             )
                         }>
                         <div
-                            onClick={() => setIsConfirmingDelete(true)}
-                            className="group p-1 cursor-pointer">
+                            onClick={() => {
+                                if (user?.role !== 'superUser') {
+                                    setIsConfirmingDelete(true)
+                                }
+                            }}
+                            className={`group p-1  ${user?.role === 'superUser' ? '!cursor-not-allowed' : 'cursor-pointer'}`}>
                             <Icons
                                 name="trash"
-                                className="text-[20px] text-error group-hover:font-black"
+                                className={`text-[20px]  group-hover:font-black ${user?.role === 'superUser' ? ' text-error/20' : 'text-error'}`}
                             />
                         </div>
                     </Tippy>

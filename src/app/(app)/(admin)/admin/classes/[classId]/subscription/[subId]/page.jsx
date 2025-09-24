@@ -359,7 +359,7 @@ export default function Main() {
                     <div className="w-full flex items-center justify-center text-center p-4      rounded-xl mt-2">
                         <div className="flex flex-col gap-2 items-center">
                             <p className="text-[18px] font-medium">
-                                وزرشکاری در این کلاس وجود ندارد!
+                                ورزشکاری در این کلاس وجود ندارد!
                             </p>
                         </div>
                     </div>

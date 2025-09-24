@@ -243,40 +243,43 @@ export default function Main() {
                         <ErrorLabel text={errors.phone_number} />
                     )}
                 </div>
-                <div className="w-full flex flex-col gap-2">
-                    <FormLabel text="رول کاربر">
-                        <Icons
-                            name="important"
-                            className="text-[8px] text-error absolute top-1 -left-2"
+                {role !== 'superUser' ?? (
+                    <div className="w-full flex flex-col gap-2">
+                        <FormLabel text="رول کاربر">
+                            <Icons
+                                name="important"
+                                className="text-[8px] text-error absolute top-1 -left-2"
+                            />
+                        </FormLabel>
+                        <Select
+                            className="w-full"
+                            isClearable
+                            value={{
+                                value: role,
+                                label: persianRoles[role],
+                            }}
+                            placeholder="انتخاب مربی"
+                            menuPlacement="top"
+                            options={roleOptions}
+                            onChange={selected => {
+                                setRole(selected?.value)
+                            }}
+                            styles={{
+                                control: base => ({
+                                    ...base,
+                                    minHeight: '56px',
+                                    padding: '0.5rem',
+                                    fontSize: '18px',
+                                    backgroundColor:
+                                        'rgb(var(--color-bg-input))',
+                                    borderRadius: '0.375rem',
+                                    border: `1px solid `,
+                                    boxShadow: 'none',
+                                }),
+                            }}
                         />
-                    </FormLabel>
-                    <Select
-                        className="w-full"
-                        isClearable
-                        value={{
-                            value: role,
-                            label: persianRoles[role],
-                        }}
-                        placeholder="انتخاب مربی"
-                        menuPlacement="top"
-                        options={roleOptions}
-                        onChange={selected => {
-                            setRole(selected?.value)
-                        }}
-                        styles={{
-                            control: base => ({
-                                ...base,
-                                minHeight: '56px',
-                                padding: '0.5rem',
-                                fontSize: '18px',
-                                backgroundColor: 'rgb(var(--color-bg-input))',
-                                borderRadius: '0.375rem',
-                                border: `1px solid `,
-                                boxShadow: 'none',
-                            }),
-                        }}
-                    />
-                </div>
+                    </div>
+                )}
 
                 <div className="flex flex-col gap-2">
                     <FormLabel text="جنسیت" error={errors.gender}>
