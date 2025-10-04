@@ -69,16 +69,16 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
                 })
                 const user = res?.data?.user
                 if (user?.role === 'superUser') {
-                    window.location.href = 'http://192.168.254.7:3000/admin'
+                    window.location.href = 'http://192.168.254.9:3000/admin'
                 } else if (user?.role === 'instructor') {
                     window.location.href =
-                        'http://192.168.254.7:3000/instructor'
+                        'http://192.168.254.9:3000/instructor'
                 } else if (!user?.name) {
                     window.location.href =
-                        'http://192.168.254.7:3000/complete-signup'
+                        'http://192.168.254.9:3000/complete-signup'
                 } else {
                     window.location.href =
-                        'http://192.168.254.7:3000/dashboard/classes'
+                        'http://192.168.254.9:3000/dashboard/classes'
                 }
                 setLoading(false)
                 return mutate()
@@ -114,7 +114,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
             .then(() => {
                 setLoading(false)
                 window.location.href =
-                    'http://192.168.254.7:3000/dashboard/classes'
+                    'http://192.168.254.9:3000/dashboard/classes'
                 mutate()
             })
             .catch(error => {
@@ -171,7 +171,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated } = {}) => {
         await csrf()
         if (!error) {
             await axios.post('/logout').then(() => {
-                window.location.href = 'http://192.168.254.7:3000/'
+                window.location.href = 'http://192.168.254.9:3000/'
                 mutate()
             })
         }
