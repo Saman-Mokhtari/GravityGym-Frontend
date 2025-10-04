@@ -18,8 +18,8 @@ export default function TransactionCard({name, datetime, price}) {
                     <div
                         dir="ltr"
                         className="flex items-center gap-2 text-[16px]">
-                        <p>{datetime.date}</p>
-                        <p>{datetime.clock}</p>
+                        <p>{datetime?.date}</p>
+                        <p>{datetime?.clock}</p>
                     </div>
                 </div>
             </div>
@@ -27,7 +27,7 @@ export default function TransactionCard({name, datetime, price}) {
             {/* Transaction ammount */}
             <div className="flex items-center gap-1">
                 <div className="text-green-500 font-semibold flex gap-1 items-center text-[16px]">
-                    <p>{price.toLocaleString()}</p>
+                    <p>{price?.toLocaleString()}</p>
                     <p>تومانءء</p>
                 </div>
             </div>

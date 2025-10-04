@@ -4,6 +4,7 @@ import PageTitle from '@/components/PageTitle'
 import StatsCard from '@/components/StatsCard'
 import TransactionCard from '@/components/TransactionCard'
 import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import Link from 'next/link'
 import { useEffect } from 'react'
 
 export default function Main() {
@@ -14,8 +15,8 @@ export default function Main() {
     }, [])
 
     const datetime = {
-        "date": '1403/12/12',
-        "clock": "12:42"
+        date: '1403/12/12',
+        clock: '12:42',
     }
 
     return (
@@ -69,13 +70,27 @@ export default function Main() {
                 <div className="w-full flex justify-between gap-2 items-center">
                     <FormLabel text="آخرین تراکنش‌ها" />
                     <div className="flex items-center justify-center p-2 ">
-                        <p className='text-blue-500'>مشاهده همه</p>
+                        <Link href="/admin/finance/history">
+                            <p className="text-blue-500">مشاهده همه</p>
+                        </Link>
                     </div>
                 </div>
-                <div className='w-full flex flex-col gap-6'>
-                    <TransactionCard name={"سامان مختاری"} datetime={datetime} price={8000000}/>
-                    <TransactionCard name={"سامان مختاری"} datetime={datetime} price={8000000}/>
-                    <TransactionCard name={"سامان مختاری"} datetime={datetime} price={8000000}/>
+                <div className="w-full flex flex-col gap-6">
+                    <TransactionCard
+                        name={'سامان مختاری'}
+                        datetime={datetime}
+                        price={8000000}
+                    />
+                    <TransactionCard
+                        name={'سامان مختاری'}
+                        datetime={datetime}
+                        price={8000000}
+                    />
+                    <TransactionCard
+                        name={'سامان مختاری'}
+                        datetime={datetime}
+                        price={8000000}
+                    />
                 </div>
             </div>
         </div>
