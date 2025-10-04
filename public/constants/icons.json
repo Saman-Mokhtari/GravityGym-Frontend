@@ -68,6 +68,8 @@
     "gridSolid": "fa-solid fa-grid-2",
     "price": "fa-solid fa-money-bill-wave",
     "transaction": "fa-light fa-money-bill-transfer",
+    "transactionThin": "fa-light fa-money-bill",
+    "transactionSolid": "fa-solid fa-money-bill",
     "category": "fa-solid fa-list",
     "gateway": "fa-solid fa-sign-post",
     "clock": "fa-solid fa-clock",

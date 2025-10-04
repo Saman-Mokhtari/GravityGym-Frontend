@@ -94,6 +94,18 @@ function Sidebar({ user, logout, pathName }) {
                         }
                         label="مدیریت اعضای باشگاه"
                     />
+
+                     <SidebarLink
+                        className=""
+                        href="/admin/finance"
+                        active={pathName.startsWith('/admin/finance')}
+                        icon={
+                            pathName.startsWith('/admin/finance')
+                                ? 'transactionSolid'
+                                : 'transactionThin'
+                        }
+                        label="مدیریت مالی باشگاه"
+                    />
                 </div>
             </div>
 
