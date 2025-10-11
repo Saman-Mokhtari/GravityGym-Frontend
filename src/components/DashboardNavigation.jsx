@@ -15,7 +15,7 @@ export default function DashboardNavigation() {
     const [scrolled, setScrolled] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
     const pathname = usePathname()
-    const [navOpen, setNavOpen] = useState(true)
+    const [navOpen, setNavOpen] = useState(false)
 
     useEffect(() => {
         const handleScroll = () => {
