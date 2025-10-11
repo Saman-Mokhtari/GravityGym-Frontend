@@ -6,13 +6,14 @@ import { useSubscription } from '@/hooks/subscription'
 import { useClass } from '@/hooks/class'
 import { usePayment } from '@/hooks/payment'
 import { useNavigationTitle } from '@/context/NavigationTitleContext'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const Dashboard = () => {
     const { users } = useAuth()
     const { active: subscriptions } = useSubscription()
     const { classes } = useClass()
-    const { payments } = usePayment()
+    const [filters] = useState({overview: true})
+    const { payments } = usePayment(filters)
     const { setTitle } = useNavigationTitle()
 
     useEffect(() => {
@@ -30,16 +31,7 @@ const Dashboard = () => {
     ).length
     const subscriptionsCount = subscriptions.length
     const classesCount = classes.length
-    const oneMonthAgo = new Date()
-    oneMonthAgo.setDate(oneMonthAgo.getDate() - 30)
-    const oneWeekAgo = new Date()
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
-    const weekPaymentsTotal = payments
-        .filter(payment => new Date(payment.created_at) >= oneWeekAgo)
-        .reduce((sum, payment) => sum + payment.amount, 0)
-    const monthPaymentsTotal = payments
-        .filter(payment => new Date(payment.created_at) >= oneMonthAgo)
-        .reduce((sum, payment) => sum + payment.amount, 0)
+
 
     return (
         <div className="w-full flex justify-center flex-col gap-6 pb-10">
@@ -68,14 +60,14 @@ const Dashboard = () => {
                         title="درآمد این هفته"
                         className="!desktop:w-1/2 !w-full">
                         <p className="text-success font-bold">
-                            {weekPaymentsTotal.toLocaleString()} تومانءء
+                            {payments?.overview?.this_week_revenue?.toLocaleString()} تومانءء
                         </p>
                     </StatsCard>
                     <StatsCard
                         title="درآمد این ماه"
                         className="!desktop:w-1/2 !w-full">
                         <p className="text-success font-bold">
-                            {monthPaymentsTotal.toLocaleString()} تومانءء
+                            {payments?.overview?.this_month_revenue?.toLocaleString()} تومانءء
                         </p>
                     </StatsCard>
                 </div>

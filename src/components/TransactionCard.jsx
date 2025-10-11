@@ -1,6 +1,6 @@
 import Icons from './Icons'
 
-export default function TransactionCard({name, datetime, price}) {
+export default function TransactionCard({name, datetime,sub ,price}) {
     return (
         <article className="w-full flex items-center justify-between">
             {/* Transaction information */}
@@ -15,6 +15,7 @@ export default function TransactionCard({name, datetime, price}) {
                     <div className='w-36 flex items-start'>
                         <h2 className="text-[16px] font-semibold line-clamp-1">{name}</h2>
                     </div>
+                    <p>اشتراک {sub?.name} کلاس {sub?.class_name}</p>
                     <div
                         dir="ltr"
                         className="flex items-center gap-2 text-[16px]">

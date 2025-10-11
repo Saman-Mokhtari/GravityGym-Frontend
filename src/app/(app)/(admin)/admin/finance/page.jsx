@@ -4,20 +4,18 @@ import PageTitle from '@/components/PageTitle'
 import StatsCard from '@/components/StatsCard'
 import TransactionCard from '@/components/TransactionCard'
 import { useNavigationTitle } from '@/context/NavigationTitleContext'
+import { usePayment } from '@/hooks/payment'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 export default function Main() {
     const { setTitle } = useNavigationTitle()
+    const [filters] = useState({ sort: 'desc', per_page: 3, page: 1, overview: true })
+    const { payments } = usePayment(filters)
 
     useEffect(() => {
         setTitle('مدیریت مالی')
     }, [])
-
-    const datetime = {
-        date: '1403/12/12',
-        clock: '12:42',
-    }
 
     return (
         <div className="flex flex-col gap-6">
@@ -28,20 +26,20 @@ export default function Main() {
                 <FormLabel text="خلاصه‌ای از مالی" />
                 <StatsCard title="درآمد کل">
                     <div className="text-green-500 font-semibold flex gap-1 items-center text-[18px]">
-                        <p>{(80000000).toLocaleString()}</p>
+                        <p>{payments?.overview?.total_revenue.toLocaleString()}</p>
                         <p>تومانءء</p>
                     </div>
                 </StatsCard>
                 <div className="w-full flex items-center gap-1">
                     <StatsCard title="درآمد این هفته">
                         <div className="text-green-500 font-semibold flex gap-1 items-center text-[18px]">
-                            <p>{(80000000).toLocaleString()}</p>
+                            <p>{payments?.overview?.this_week_revenue.toLocaleString()}</p>
                             <p>تومانءء</p>
                         </div>
                     </StatsCard>
                     <StatsCard title="درآمد این ماه">
                         <div className="text-green-500 font-semibold flex gap-1 items-center text-[18px]">
-                            <p>{(80000000).toLocaleString()}</p>
+                            <p>{payments?.overview?.this_month_revenue.toLocaleString()}</p>
                             <p>تومانءء</p>
                         </div>
                     </StatsCard>
@@ -76,21 +74,14 @@ export default function Main() {
                     </div>
                 </div>
                 <div className="w-full flex flex-col gap-6">
-                    <TransactionCard
-                        name={'سامان مختاری'}
-                        datetime={datetime}
-                        price={8000000}
-                    />
-                    <TransactionCard
-                        name={'سامان مختاری'}
-                        datetime={datetime}
-                        price={8000000}
-                    />
-                    <TransactionCard
-                        name={'سامان مختاری'}
-                        datetime={datetime}
-                        price={8000000}
-                    />
+                    {(payments?.data ?? []).map(payment => (
+                        <TransactionCard
+                            key={payment.id}
+                            name={payment?.user?.name ?? '—'}
+                            datetime={payment?.created_at ?? ''}
+                            price={payment?.amount ?? 0}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
