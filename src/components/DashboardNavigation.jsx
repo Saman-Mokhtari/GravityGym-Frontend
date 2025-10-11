@@ -5,6 +5,7 @@ import Icons from '@/components/Icons'
 import Link from 'next/link'
 import { useNavigationTitle } from '@/context/NavigationTitleContext'
 import { useAuth } from '@/hooks/auth'
+import AdminNavigationPage from './AdminNavigationPage'
 
 export default function DashboardNavigation() {
     const currentRoute = usePathname()
@@ -14,6 +15,8 @@ export default function DashboardNavigation() {
     const [scrolled, setScrolled] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
     const pathname = usePathname()
+    const [navOpen, setNavOpen] = useState(true)
+
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > lastScrollY) {
@@ -31,21 +34,31 @@ export default function DashboardNavigation() {
     return (
         <nav
             className={`${pathname.startsWith('/dashboard/classes/enroll/verify-payment') && 'hidden'} w-full py-6 px-4 desktop:hidden flex items-center justify-between shadow-custom fixed top-0 left-0 bg-bgPrimary z-[100] transition-all duration-300 ${
-                scrolled ? 'translate-y-0' : '-translate-y-full'
+                (scrolled) ? 'translate-y-0' : (!navOpen) && '-translate-y-full'
             }`}>
             <div className={`flex items-center justify-between w-full`}>
-                <div className="flex items-center gap-4">
-                    <div
-                        onClick={() => {
-                            router.back()
-                        }}
-                        className={`aspect-square w-8 ${!['/admin', '/admin/classes', '/admin/users', '/admin/profile'].includes(pathname) ? 'flex flex-col' : 'hidden'} items-center justify-center border border-textPrimary rounded-md`}>
-                        <Icons name="arrowRight" className="text-[20px]" />
+                <div className="w-full flex flex-col">
+                    <div className="flex items-center gap-4 z-50">
+                        <div
+                            className="flex"
+                            onClick={() => {
+                                setNavOpen(!navOpen)
+                            }}>
+                            <Icons
+                                name={!navOpen ? 'hamburger' : 'close'}
+                                className="text-[22px] "
+                            />
+                        </div>
+                        <h2 className="text-[18px]  font-medium ['/admin', '/admin/classes', '/admin/users', '/admin/profile'].includes(pathname) ? 'flex flex-col' : 'hidden'">
+                            {title}
+                        </h2>
                     </div>
-                    <h2 className="text-[18px] font-medium ['/admin', '/admin/classes', '/admin/users', '/admin/profile'].includes(pathname) ? 'flex flex-col' : 'hidden'">
-                        {title}
-                    </h2>
+                    <AdminNavigationPage
+                        navOpen={navOpen}
+                        setNavOpen={setNavOpen}
+                    />
                 </div>
+
                 {![
                     '/admin',
                     '/admin/classes',

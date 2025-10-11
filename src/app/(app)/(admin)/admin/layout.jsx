@@ -12,10 +12,12 @@ import {
     NavigationTitleProvider,
     useNavigationTitle,
 } from '@/context/NavigationTitleContext'
-import AdminBottomNavbar from '@/components/AdminBottomNavbar'
+import SidebarLink from '@/components/SidebarLink'
 import Tippy from '@tippyjs/react'
 import 'tippy.js/dist/tippy.css' // core styles
 import 'tippy.js/dist/svg-arrow.css'
+import NavigationContent from '@/components/NavigationContent'
+import AdminProfile from '@/components/AdminProfile'
 
 export default function Layout({ children }) {
     const { isDesktop } = useWindowSize()
@@ -38,7 +40,7 @@ export default function Layout({ children }) {
                         }>
                         {children}
                     </div>
-                    <AdminBottomNavbar />
+                    {/* <AdminBottomNavbar /> */}
                 </NavigationTitleProvider>
             </>
         )
@@ -62,105 +64,15 @@ function Sidebar({ user, logout, pathName }) {
                     secondLine={`${user?.name?.split(' ')[0]} عزیز!`}
                 />
 
-                <div className="mt-8 flex flex-col gap-2">
-                    <FormLabel text="مدیریت" />
-                    <SidebarLink
-                        className=""
-                        href="#"
-                        icon={pathName === '/admin' ? 'gridSolid' : 'gridLight'}
-                        active={pathName === '/admin'}
-                        label="صفحه اصلی داشبورد"
-                    />
-
-                    <SidebarLink
-                        className=""
-                        href="/admin/classes"
-                        active={pathName.startsWith('/admin/classes')}
-                        icon={
-                            pathName.startsWith('/admin/classes')
-                                ? 'dumbleSolid'
-                                : 'dumbleLight'
-                        }
-                        label="مدیریت کلاس‌ها"
-                    />
-                    <SidebarLink
-                        className=""
-                        href="/admin/users"
-                        active={pathName.startsWith('/admin/users')}
-                        icon={
-                            pathName.startsWith('/admin/users')
-                                ? 'users'
-                                : 'usersLight'
-                        }
-                        label="مدیریت اعضای باشگاه"
-                    />
-
-                     <SidebarLink
-                        className=""
-                        href="/admin/finance"
-                        active={pathName.startsWith('/admin/finance')}
-                        icon={
-                            pathName.startsWith('/admin/finance')
-                                ? 'transactionSolid'
-                                : 'transactionThin'
-                        }
-                        label="مدیریت مالی باشگاه"
-                    />
-                </div>
+                <NavigationContent />
             </div>
 
-            <div className="flex flex-col gap-2">
-                <Tippy
-                    arrow={true}
-                    content="اطلاعات کاربری"
-                    className="font-font">
-                    <Link
-                        href="/admin/profile"
-                        className={`flex items-center gap-4 group py-2 justify-between hover:bg-bgDashboardHover hover:border-textSecondary rounded-md px-2  cursor-pointer ${pathName.startsWith('/admin/profile') && '!bg-bgDashboardHover '}`}>
-                        <div className="flex items-center gap-3">
-                            <div className="w-[2.5rem] aspect-square rounded-full bg-gray-200 flex justify-center items-center">
-                                <Icons
-                                    name="user"
-                                    className="text-[20px] text-textSecondary"
-                                />
-                            </div>
-                            <h2 className="font-bold text-[16px]">
-                                {user?.name}
-                            </h2>
-                        </div>
-                    </Link>
-                </Tippy>
-
-                <div
-                    onClick={logout}
-                    className="flex items-center gap-4 hover:bg-bgDashboardHover cursor-pointer py-1 rounded-md transition">
-                    <div className="w-[2.5rem] aspect-square rounded-full flex justify-center items-center">
-                        <Icons
-                            name="logout"
-                            className="text-[20px] text-error"
-                        />
-                    </div>
-                    <h2 className="font-light text-[18px] text-error">
-                        خروج از حساب کاربری
-                    </h2>
-                </div>
-            </div>
+            <AdminProfile logout={logout} user={user} pathName={pathName}/>
         </aside>
     )
 }
 
-function SidebarLink({ href, icon, label, active, className = null }) {
-    return (
-        <Link
-            href={href}
-            className={`w-full p-2 rounded-md cursor-pointer flex items-center gap-2 text-[18px] transition-all hover:bg-bgDashboardHover ${className} ${
-                active ? '!bg-bgDashboardHover' : ''
-            }`}>
-            <Icons name={icon} className="text-[16px]" />
-            <h2>{label}</h2>
-        </Link>
-    )
-}
+
 
 function MainPanel({ children, pathName }) {
     const { title } = useNavigationTitle()

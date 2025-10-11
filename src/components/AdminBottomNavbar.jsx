@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import useWindowSize from '@/hooks/useWindowSize'
 
-function AthleteBottomNavbar() {
+function AdminBottomNavbar() {
     const [scrolled, setScrolled] = useState(true)
     const [lastScrollY, setLastScrollY] = useState(0)
     const pathName = usePathname()
@@ -111,4 +111,4 @@ function AthleteBottomNavbar() {
     )
 }
 
-export default AthleteBottomNavbar
+export default AdminBottomNavbar
